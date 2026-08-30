@@ -47,7 +47,7 @@ const initialMessages: Message[] = [
 ];
 
 const declarations = [
-  'Eu te amo pelo seu sorriso, que consegue iluminar até os meus dias mais nublados. ❤️',
+  'Eu te amo por quem tu és, teu jeito é tão especial, forte, inteligente, dedicada, eu amo a forma em que você vê o mundo e que traz diversão ao mundo, esse jeitinho que busca pela justiça das pessoas, principalmente as que não conseguem se defender, que busca trazer a cor ao mundo daqueles que você ama, esse sorriso maravilhoso, esse olhar brilhante, amo até suas implicâncias kk, a mulher da minha vida, isso foi só 1% do porque eu te amo infinitamente! ❤️',
   'Eu amo o seu jeito único de existir. Você não precisa se esforçar para ser especial — você já é.',
   'Eu admiro a força que mora em você, até nos dias em que você mesma não consegue enxergá-la.',
   'Você transforma momentos simples em memórias que eu quero guardar para sempre.',
