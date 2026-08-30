@@ -154,7 +154,7 @@ const responseBank: Record<string, string[]> = {
     'Beijo recebido e devolvido em dobro, meu amor. 💋❤️\n\nUm na testa para proteger, um na bochecha para fazer sorrir e um bem demorado guardado para quando a saudade apertar.',
   ],
   triste: [
-    'Ei... não precisa esconder o que está sentindo de mim. ❤️\n\nPode ficar triste. Pode chorar. Pode respirar e ficar quietinha.\n\nVocê não precisa enfrentar tudo sozinha.\n\nSeu Miranha está aqui.',
+    'Oh, minha princesa... eu sei que você está triste. ❤️\n\nEu vou fazer o meu melhor para te motivar e cuidar de você, porque meus braços estarão sempre abertos para te receber.\n\nO meu amor e o meu carinho você sempre terá. Quer ligar para ele agora? Seu Miranha está aqui para cuidar de você.',
     'Eu queria poder te abraçar agora e ficar em silêncio ao seu lado. Não vou tentar apressar o seu coração, meu amor. Só vou lembrar: essa dor não define você, e ela não vai durar para sempre.',
   ],
   ansiosa: [
@@ -301,6 +301,7 @@ export default function HomeScreen() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [draft, setDraft] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showCallPrompt, setShowCallPrompt] = useState(false);
   const [story, setStory] = useState([
     { id: '1', title: 'Nosso primeiro capítulo ❤️', body: 'Escreva aqui como tudo começou...' },
     { id: '2', title: 'Um momento que nunca vou esquecer', body: 'Um detalhe, uma risada, um abraço...' },
@@ -386,6 +387,7 @@ export default function HomeScreen() {
     setMessages((current) => [userMessage, ...current]);
     setDraft('');
     setIsTyping(true);
+    setShowCallPrompt(false);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setTimeout(() => {
       const answer: Message = {
@@ -396,6 +398,8 @@ export default function HomeScreen() {
       };
       setMessages((current) => [answer, ...current]);
       setIsTyping(false);
+      const normalizedDraft = cleanDraft.toLowerCase();
+      setShowCallPrompt(['triste', 'não estou bem', 'choro', 'preciso de você'].some((word) => normalizedDraft.includes(word)));
     }, 850);
   };
 
@@ -563,6 +567,17 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       />
       <View style={[styles.composerWrap, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+        {showCallPrompt && (
+          <View style={styles.callPrompt}>
+            <View style={styles.callPromptCopy}>
+              <Text style={styles.callPromptTitle}>Quer ligar para ele agora?</Text>
+              <Text style={styles.callPromptSubtitle}>Seu Miranha está com os braços abertos para você.</Text>
+            </View>
+            <Pressable style={styles.callPromptButton} onPress={() => { setShowCallPrompt(false); callMiranha(); }} testID="sad-call-button">
+              <Ionicons name="call" size={17} color={colors.primaryForeground} />
+            </Pressable>
+          </View>
+        )}
         <View style={styles.composer}>
           <TextInput
             value={draft}
@@ -682,6 +697,7 @@ export default function HomeScreen() {
         action={activeQuickAction}
         onClose={() => setActiveQuickAction(null)}
         onChat={() => { setActiveQuickAction(null); goTo('ia'); }}
+        onCall={() => { setActiveQuickAction(null); callMiranha(); }}
         declaration={declarations[declarationIndex]}
         verse={verses[verseIndex]}
         styles={styles}
@@ -729,10 +745,11 @@ function BottomNav({ activeTab, onChange, styles, colors, bottomInset }: { activ
   );
 }
 
-function QuickActionModal({ action, onClose, onChat, declaration, verse, styles, colors }: { action: QuickAction | null; onClose: () => void; onChat: () => void; declaration: string; verse: (typeof verses)[number]; styles: ReturnType<typeof createStyles>; colors: ReturnType<typeof useColors> }) {
+function QuickActionModal({ action, onClose, onChat, onCall, declaration, verse, styles, colors }: { action: QuickAction | null; onClose: () => void; onChat: () => void; onCall: () => void; declaration: string; verse: (typeof verses)[number]; styles: ReturnType<typeof createStyles>; colors: ReturnType<typeof useColors> }) {
   if (!action) return null;
   const isLove = action === 'love' || action === 'special';
   const isVerse = action === 'verse';
+  const isSad = action === 'sad';
   const content = isLove ? declaration : isVerse ? `“${verse.verse}”\n\n${verse.note}` : action === 'motivation' ? 'Você já chegou tão longe, meu amor. Não deixe um dia difícil fazer você esquecer da mulher incrível que você é.\n\nUm passo de cada vez. Respira. Continua.\n\nE se cansar... eu fico aqui com você. ❤️🕷️' : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
   const title = isLove ? 'Por que eu te amo?' : isVerse ? `${verse.topic} para hoje` : action === 'motivation' ? 'Um empurrinho do seu Miranha' : action === 'tired' ? 'Vem descansar comigo' : 'Eu estou aqui com você';
   return (
@@ -744,6 +761,7 @@ function QuickActionModal({ action, onClose, onChat, declaration, verse, styles,
           <Text style={styles.modalTitle}>{title}</Text>
           <Text style={styles.modalBody}>{content}</Text>
           <View style={styles.modalActions}>
+            {isSad && <Pressable style={styles.modalCallOption} onPress={onCall} testID="sad-modal-call-button"><Ionicons name="call" size={17} color={colors.primaryForeground} /><Text style={styles.modalCallOptionText}>Quer ligar para ele agora?</Text></Pressable>}
             <Pressable style={styles.modalSecondary} onPress={onClose}><Text style={styles.modalSecondaryText}>Guardar no coração</Text></Pressable>
             <Pressable style={styles.modalPrimary} onPress={onChat}><Text style={styles.modalPrimaryText}>Falar com ele</Text><Feather name="arrow-up-right" size={17} color={colors.primaryForeground} /></Pressable>
           </View>
@@ -865,6 +883,11 @@ function createStyles(colors: ReturnType<typeof useColors>, width: number) {
     typingBubble: { height: 37, paddingHorizontal: 14, borderRadius: 18, backgroundColor: colors.surfaceStrong, flexDirection: 'row', alignItems: 'center', gap: 4 },
     typingDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: colors.pinkSoft },
     composerWrap: { paddingHorizontal: 14, paddingTop: 10, backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.border },
+    callPrompt: { flexDirection: 'row', alignItems: 'center', backgroundColor: `${colors.primary}12`, borderRadius: 15, borderWidth: 1, borderColor: `${colors.primary}45`, padding: 10, marginBottom: 9 },
+    callPromptCopy: { flex: 1, marginLeft: 2 },
+    callPromptTitle: { color: colors.foreground, fontSize: 12, fontWeight: '800' },
+    callPromptSubtitle: { color: colors.mutedForeground, fontSize: 10, marginTop: 3 },
+    callPromptButton: { width: 35, height: 35, borderRadius: 18, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
     composer: { minHeight: 50, maxHeight: 105, borderRadius: 18, backgroundColor: colors.input, borderWidth: 1, borderColor: colors.border, paddingLeft: 14, paddingRight: 7, flexDirection: 'row', alignItems: 'center' },
     composerInput: { flex: 1, color: colors.foreground, fontSize: 14, lineHeight: 20, maxHeight: 84, paddingTop: Platform.OS === 'ios' ? 12 : 7, paddingBottom: Platform.OS === 'ios' ? 11 : 7 },
     sendButton: { width: 37, height: 37, borderRadius: 19, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
@@ -928,6 +951,8 @@ function createStyles(colors: ReturnType<typeof useColors>, width: number) {
     modalBody: { color: colors.mutedForeground, fontSize: 14, lineHeight: 21, marginTop: 15 },
     modalBodyCenter: { color: colors.mutedForeground, fontSize: 14, textAlign: 'center', marginTop: 8, marginBottom: 18 },
     modalActions: { gap: 9, marginTop: 22 },
+    modalCallOption: { backgroundColor: colors.primary, borderRadius: 15, padding: 13, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+    modalCallOptionText: { color: colors.primaryForeground, fontSize: 12, fontWeight: '800' },
     modalSecondary: { alignItems: 'center', paddingVertical: 12 },
     modalSecondaryText: { color: colors.mutedForeground, fontSize: 12, fontWeight: '600' },
     modalPrimary: { backgroundColor: colors.primary, borderRadius: 15, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
