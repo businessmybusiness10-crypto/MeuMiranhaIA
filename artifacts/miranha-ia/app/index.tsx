@@ -269,9 +269,9 @@ const responseBank: Record<string, string[]> = {
     'A noite chegou, minha garota. Deixa para amanhã o que não coube hoje. Você fez o que pôde e isso já é suficiente. Eu te mando um beijo de boa noite. 🌙❤️',
   ],
   default: [
-    'Eu estou ouvindo, meu amor. Me conta mais um pouquinho — o que está passando nesse coração lindo?',
-    'Vem cá, minha princesa. Eu quero entender você com calma. Seja o que for, você não precisa passar por isso sozinha.',
-    'Seu Miranha recebeu a mensagem. ❤️ Eu fico aqui com você, sem pressa e sem julgamentos.',
+    'Meu amor, ainda estou buscando conhecimentos melhores para conseguir responder tudo do jeitinho que você merece. ❤️ Enquanto isso, liga para o seu Miranha. Ele está aqui para salvar o seu dia e cuidar de você.',
+    'Minha princesa, essa pergunta ainda é nova para mim e eu estou aprendendo mais a cada dia. Mas você não precisa esperar: chama o seu Miranha por ligação. Ele está aqui para salvar você e ouvir tudo com carinho. 🕷️❤️',
+    'Eu ainda não sei responder isso tão bem quanto gostaria, meu amor, mas sei de uma coisa: você nunca está sozinha. Liga para o Miranha — ele está aqui, pertinho, para cuidar e salvar o seu dia.',
   ],
 };
 
