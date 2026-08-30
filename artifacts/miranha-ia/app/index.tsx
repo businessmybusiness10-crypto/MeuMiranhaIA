@@ -784,8 +784,8 @@ export default function HomeScreen() {
       </View>
       <View style={styles.promiseCard}>
         <Text style={styles.promiseQuote}>“</Text>
-        <Text style={styles.promiseText}>Eu não prometo que todos os dias serão fáceis. Mas prometo que você nunca vai precisar atravessar um dia difícil se sentindo sozinha.</Text>
-        <Text style={styles.promiseSign}>— seu Miranha</Text>
+        <Text style={styles.promiseText}>Posso não estar presente pessoalmente, mas estou ao teu lado, não hesite em me chamar, ao teu lado vou estar!!!</Text>
+        <Text style={styles.promiseSign}>-meu miranha</Text>
       </View>
       <Pressable style={styles.contactCard} onPress={() => setIsSummonOpen(true)} testID="contact-card">
         <View style={[styles.contactIcon, { backgroundColor: colors.primary }]}><MaterialCommunityIcons name="spider-thread" size={23} color={colors.primaryForeground} /></View>
