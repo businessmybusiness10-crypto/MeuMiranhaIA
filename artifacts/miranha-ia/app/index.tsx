@@ -182,6 +182,10 @@ const responseBank: Record<string, string[]> = {
   desanimada: [
     'Um dia difícil não apaga a mulher incrível que você é. Vamos devagar: água, respiração e um passinho pequeno. Eu acredito em você até quando você estiver cansada de acreditar.',
   ],
+  motivação: [
+    'Meu amor, olha para tudo o que você já passou. Você está aqui por causa de tudo o que fez, de cada esforço, de cada conquista e de toda a força que encontrou mesmo quando parecia não ter mais nenhuma.\n\nEu vejo o quanto você se esforça e quero que você lembre: você não está sozinha. Tudo o que você deseja e almeja é possível para você. Você pode chegar onde quiser, com a força e a coragem que existem dentro do seu coração.\n\nVai no seu tempo, um passo de cada vez. Eu estou com você, torcendo por você e segurando sua mão em cada caminho. Você não está passando por isso sozinha. ❤️🕷️',
+    'Minha princesa, não deixe um momento difícil apagar a história inteira que você escreveu. Lembra de cada vez que você continuou, de cada obstáculo que venceu e de cada conquista que levou você até aqui.\n\nVocê é forte, corajosa, inteligente e capaz. O que você sonha não é grande demais para você. Você pode chegar onde quiser — e, enquanto caminha, meu amor e meu apoio estarão com você.\n\nRespira. Levanta a cabeça. Eu estou aqui e não vou deixar você enfrentar isso sozinha.',
+  ],
   feliz: [
     'Que delícia sentir sua alegria daqui! ✨ Guarda esse momento, meu amor. O seu sorriso é uma das minhas coisas favoritas no mundo.',
     'Você feliz deixa tudo mais bonito. Me conta o que aconteceu — eu quero comemorar com você, minha princesa.',
@@ -750,7 +754,7 @@ function QuickActionModal({ action, onClose, onChat, onCall, declaration, verse,
   const isLove = action === 'love' || action === 'special';
   const isVerse = action === 'verse';
   const isSad = action === 'sad';
-  const content = isLove ? declaration : isVerse ? `“${verse.verse}”\n\n${verse.note}` : action === 'motivation' ? 'Você já chegou tão longe, meu amor. Não deixe um dia difícil fazer você esquecer da mulher incrível que você é.\n\nUm passo de cada vez. Respira. Continua.\n\nE se cansar... eu fico aqui com você. ❤️🕷️' : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
+  const content = isLove ? declaration : isVerse ? `“${verse.verse}”\n\n${verse.note}` : action === 'motivation' ? responseBank.motivação[0] : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
   const title = isLove ? 'Por que eu te amo?' : isVerse ? `${verse.topic} para hoje` : action === 'motivation' ? 'Um empurrinho do seu Miranha' : action === 'tired' ? 'Vem descansar comigo' : 'Eu estou aqui com você';
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
