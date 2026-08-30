@@ -51,7 +51,7 @@ const declarations = [
   'Eu amo muito os nossos momentos canônicos. Amo nossas aventuras e amo como conseguimos transformar até uma calçada em um momento de sonho, sentados olhando as estrelas. Com você, qualquer instante pode virar uma história inesquecível. ✨❤️',
   'Amar a ti é ter uma das melhores experiências da minha vida. Compartilhar a vida contigo, os momentos, as aventuras, as conquistas, as tristezas — o que for — é perfeito tendo você ao meu lado! Penedo, Campos do Jordão, Guaratiba, seja onde for, se torna nossa história! ❤️',
   'Viver contigo é saber que, dia após dia, eu terei uma novidade, uma aventura e um motivo para sorrir. Viver contigo é uma experiência única, pois todos os dias eu tenho um novo motivo para me apaixonar por você. ❤️',
-  'Eu amo o carinho que você oferece, até quando o seu próprio coração está pedindo colo.',
+  'A vida floresce em meu peito graças a você, pois esteve comigo em meus maiores momentos de dificuldade, quando a escuridão dominava o meu peito e a minha alma se partia. Porém, com teu amor, conseguiste unir cada pedaço da minha alma e iluminar cada escuridão que me dominava. Graças a ti, eu conheci o amor. Graças a ti, a vida se iluminou. ❤️',
   'A sua companhia faz qualquer lugar parecer casa. Com você, eu me sinto exatamente onde devo estar.',
   'Eu amo imaginar o nosso futuro, construído com pequenas escolhas, risadas e muito cuidado.',
   'Você é uma das partes mais bonitas da minha vida e eu nunca quero que você se esqueça disso.',
