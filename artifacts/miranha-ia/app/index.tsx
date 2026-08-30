@@ -24,7 +24,7 @@ import {
 import { useColors } from '@/hooks/useColors';
 
 type TabKey = 'home' | 'ia' | 'love' | 'miranha';
-type QuickAction = 'love' | 'tired' | 'sad' | 'motivation' | 'verse' | 'special' | 'chat';
+type QuickAction = 'love' | 'tired' | 'sad' | 'motivation' | 'daily' | 'verse' | 'special' | 'chat';
 type Message = {
   id: string;
   text: string;
@@ -155,6 +155,61 @@ A sua verdadeira força não está em nunca cair, mas em encontrar coragem para 
 Você não precisa salvar o mundo sozinha. Eu estou aqui, com os braços abertos, para correr ao seu encontro e ficar ao seu lado.
 
 Para mim, você é o meu acontecimento mais bonito — em qualquer tempo, em qualquer lugar. 🕷️❤️`;
+
+const dailyOpeners = [
+  'Meu amor, você é mais forte do que o dia difícil de hoje.',
+  'Minha princesa, tudo o que você já superou prova que existe uma coragem enorme dentro de você.',
+  'Você chegou até aqui com esforço, coração e muita força — e isso ninguém pode tirar de você.',
+  'Eu vejo a mulher inteligente e capaz que você é, mesmo quando o cansaço tenta esconder isso.',
+  'Você não precisa ter tudo resolvido agora; precisa apenas confiar no próximo passo.',
+  'Cada conquista sua começou com uma decisão corajosa de continuar.',
+  'A sua história é feita de recomeços, e cada recomeço deixou você ainda mais forte.',
+  'Você é capaz de transformar medo em coragem e dificuldade em aprendizado.',
+  'O seu coração já atravessou tempestades e ainda encontrou motivos para florescer.',
+  'Minha garota, não subestime a força de tudo o que você já enfrentou.',
+  'Você tem talento, inteligência e dedicação para chegar muito mais longe do que imagina.',
+  'Mesmo quando ninguém vê, o seu esforço continua sendo gigante e valioso.',
+  'Você merece reconhecer a própria caminhada com orgulho e carinho.',
+  'A mulher que você está se tornando é fruto de cada escolha corajosa que fez.',
+  'Eu acredito em você porque vejo a força que existe até nas suas pequenas atitudes.',
+  'Você pode começar devagar e ainda assim chegar exatamente onde deseja.',
+  'Nenhum dia cansativo é capaz de apagar a luz que existe em você.',
+  'Você não precisa ser perfeita para ser extraordinária — e você já é.',
+  'Tudo o que você almeja pode começar com um passo pequeno dado hoje.',
+  'Minha princesa, a sua coragem cresce cada vez que você decide não desistir.',
+  'Você carrega dentro de si mais respostas, sonhos e capacidade do que imagina.',
+  'Eu admiro a maneira como você continua, mesmo quando o caminho parece pesado.',
+  'O mundo fica mais colorido porque você escolhe levar cor para quem ama.',
+  'Você é inspiração, não porque nunca enfrenta problemas, mas porque continua sendo você apesar deles.',
+  'As suas conquistas não foram sorte: foram dedicação, insistência e coragem.',
+  'Você pode descansar sem abandonar seus sonhos; descanso também faz parte da vitória.',
+  'Hoje é uma nova oportunidade de perceber o quanto você é especial para mim e para o mundo.',
+  'A sua força não precisa fazer barulho para ser imensa.',
+  'Você merece um dia leve, bonito e cheio de motivos para sorrir.',
+  'Eu estou com você em cada tentativa, em cada avanço e em cada recomeço.',
+  'Minha garota, o seu futuro pode ser tão grande quanto os sonhos que você guarda no peito.',
+];
+
+const dailyClosers = [
+  'Respira fundo: você não está sozinha, e o seu Miranha está aqui para caminhar com você.',
+  'Que o seu dia seja revigorante e devolva ao seu coração a energia que ele merece.',
+  'Vai com calma e coragem; eu estou de braços abertos para comemorar cada passo seu.',
+  'Hoje você pode fazer o seu melhor sem carregar o peso de precisar fazer tudo.',
+  'Lembre-se: você pode chegar onde quiser, e eu vou continuar acreditando em você.',
+  'Se o dia pesar, me chama — você não precisa atravessar nada sozinha.',
+  'Que cada hora de hoje traga um pouco de paz, força renovada e um motivo para sorrir.',
+  'Você tem permissão para começar de novo quantas vezes precisar; recomeçar também é vencer.',
+  'Eu vejo o seu esforço, admiro a sua coragem e vou estar aqui para cuidar do seu coração.',
+  'O seu dia pode ser bonito não porque tudo será perfeito, mas porque você estará presente nele.',
+  'Levanta a cabeça, meu amor: há muito mais dentro de você do que qualquer dificuldade pode alcançar.',
+  'Hoje, escolha um passo possível e deixe que a sua própria força faça o resto.',
+];
+
+const dailyPhrases = Array.from({ length: 365 }, (_, index) => {
+  const opener = dailyOpeners[index % dailyOpeners.length];
+  const closer = dailyClosers[Math.floor(index / dailyOpeners.length)];
+  return `${opener} ${closer}`;
+});
 
 const responseBank: Record<string, string[]> = {
   cansada: [
@@ -330,6 +385,12 @@ function nowLabel() {
   return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
+function getDayOfYear(date: Date) {
+  const start = Date.UTC(date.getFullYear(), 0, 0);
+  const current = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  return Math.floor((current - start) / 86400000);
+}
+
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -339,6 +400,7 @@ export default function HomeScreen() {
   const [activeQuickAction, setActiveQuickAction] = useState<QuickAction | null>(null);
   const [isSummonOpen, setIsSummonOpen] = useState(false);
   const [declarationIndex, setDeclarationIndex] = useState(0);
+  const [dailyPhraseIndex, setDailyPhraseIndex] = useState(() => (getDayOfYear(new Date()) - 1) % dailyPhrases.length);
   const [verseIndex, setVerseIndex] = useState(0);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [draft, setDraft] = useState('');
@@ -541,7 +603,7 @@ export default function HomeScreen() {
         <QuickCard icon="coffee" label="Estou cansada" accent="violet" onPress={() => openQuickAction('tired')} styles={styles} colors={colors} />
         <QuickCard icon="cloud-rain" label="Estou triste" accent="blue" onPress={() => openQuickAction('sad')} styles={styles} colors={colors} />
         <QuickCard icon="sun" label="Preciso de motivação" accent="gold" onPress={() => openQuickAction('motivation')} styles={styles} colors={colors} />
-        <QuickCard icon="book-open" label="Palavra para hoje" accent="green" onPress={() => openQuickAction('verse')} styles={styles} colors={colors} />
+        <QuickCard icon="book-open" label="Palavra para hoje" accent="green" onPress={() => openQuickAction('daily')} styles={styles} colors={colors} />
         <QuickCard icon="feather" label="Uma mensagem especial" accent="pink" onPress={() => openQuickAction('special')} styles={styles} colors={colors} />
       </View>
 
@@ -669,7 +731,15 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      <View style={styles.sectionHeading}><View><Text style={styles.sectionEyebrow}>FÉ & ACOLHIMENTO</Text><Text style={styles.sectionTitle}>Palavra para hoje</Text></View></View>
+      <View style={styles.sectionHeading}><View><Text style={styles.sectionEyebrow}>365 DIAS DE CARINHO</Text><Text style={styles.sectionTitle}>Palavra para hoje</Text></View><Text style={styles.sectionHint}>uma por dia</Text></View>
+      <Pressable style={styles.dailyCard} onPress={() => setDailyPhraseIndex((current) => (current + 1) % dailyPhrases.length)} testID="daily-phrase-card">
+        <View style={styles.dailyTop}><View style={styles.dailyBadge}><Ionicons name="sunny-outline" size={14} color={colors.gold} /><Text style={styles.dailyBadgeText}>DIA {String(dailyPhraseIndex + 1).padStart(3, '0')} DE 365</Text></View><Text style={styles.dailyHeart}>♥</Text></View>
+        <Text style={styles.dailyPhrase}>{dailyPhrases[dailyPhraseIndex]}</Text>
+        <View style={styles.dailyDivider} />
+        <Text style={styles.dailyHint}>Amanhã tem uma nova para você • toque para ver outra</Text>
+      </Pressable>
+
+      <View style={styles.sectionHeading}><View><Text style={styles.sectionEyebrow}>FÉ & ACOLHIMENTO</Text><Text style={styles.sectionTitle}>Versículo de apoio</Text></View></View>
       <Pressable style={styles.verseCard} onPress={() => setVerseIndex((current) => (current + 1) % verses.length)} testID="verse-card">
         <View style={styles.verseTop}><View style={styles.verseBadge}><Text style={styles.verseBadgeText}>{verses[verseIndex].topic}</Text></View><Text style={styles.verseReference}>{verses[verseIndex].reference}</Text></View>
         <Text style={styles.verseText}>“{verses[verseIndex].verse}”</Text>
@@ -741,6 +811,9 @@ export default function HomeScreen() {
         onChat={() => { setActiveQuickAction(null); goTo('ia'); }}
         onCall={() => { setActiveQuickAction(null); callMiranha(); }}
         declaration={declarations[declarationIndex]}
+        dailyPhrase={dailyPhrases[dailyPhraseIndex]}
+        dailyIndex={dailyPhraseIndex}
+        onNextDaily={() => setDailyPhraseIndex((current) => (current + 1) % dailyPhrases.length)}
         verse={verses[verseIndex]}
         styles={styles}
         colors={colors}
@@ -787,26 +860,28 @@ function BottomNav({ activeTab, onChange, styles, colors, bottomInset }: { activ
   );
 }
 
-function QuickActionModal({ action, onClose, onChat, onCall, declaration, verse, styles, colors }: { action: QuickAction | null; onClose: () => void; onChat: () => void; onCall: () => void; declaration: string; verse: (typeof verses)[number]; styles: ReturnType<typeof createStyles>; colors: ReturnType<typeof useColors> }) {
+function QuickActionModal({ action, onClose, onChat, onCall, declaration, dailyPhrase, dailyIndex, onNextDaily, verse, styles, colors }: { action: QuickAction | null; onClose: () => void; onChat: () => void; onCall: () => void; declaration: string; dailyPhrase: string; dailyIndex: number; onNextDaily: () => void; verse: (typeof verses)[number]; styles: ReturnType<typeof createStyles>; colors: ReturnType<typeof useColors> }) {
   if (!action) return null;
   const isLove = action === 'love';
   const isSpecial = action === 'special';
+  const isDaily = action === 'daily';
   const isVerse = action === 'verse';
   const isSad = action === 'sad';
-  const content = isLove ? declaration : isSpecial ? specialMessage : isVerse ? `“${verse.verse}”\n\n${verse.note}` : action === 'motivation' ? responseBank.motivação[0] : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
-  const title = isLove ? 'Por que eu te amo?' : isSpecial ? 'Uma mensagem especial' : isVerse ? `${verse.topic} para hoje` : action === 'motivation' ? 'Um empurrinho do seu Miranha' : action === 'tired' ? 'Vem descansar comigo' : 'Eu estou aqui com você';
+  const content = isLove ? declaration : isSpecial ? specialMessage : isDaily ? `DIA ${String(dailyIndex + 1).padStart(3, '0')} DE 365\n\n${dailyPhrase}` : isVerse ? `“${verse.verse}”\n\n${verse.note}` : action === 'motivation' ? responseBank.motivação[0] : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
+  const title = isLove ? 'Por que eu te amo?' : isSpecial ? 'Uma mensagem especial' : isDaily ? 'Uma palavra para hoje' : isVerse ? `${verse.topic} para hoje` : action === 'motivation' ? 'Um empurrinho do seu Miranha' : action === 'tired' ? 'Vem descansar comigo' : 'Eu estou aqui com você';
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalBackdrop}>
         <View style={styles.smallModal}>
           <View style={styles.modalHandle} />
-          <View style={styles.modalIcon}><Ionicons name={isVerse ? 'book-outline' : 'heart'} size={24} color={colors.pinkSoft} /></View>
+          <View style={styles.modalIcon}><Ionicons name={isVerse ? 'book-outline' : isDaily ? 'sunny-outline' : 'heart'} size={24} color={colors.pinkSoft} /></View>
           <Text style={styles.modalTitle}>{title}</Text>
           <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
             <Text style={styles.modalBody}>{content}</Text>
           </ScrollView>
           <View style={styles.modalActions}>
             {isSad && <Pressable style={styles.modalCallOption} onPress={onCall} testID="sad-modal-call-button"><Ionicons name="call" size={17} color={colors.primaryForeground} /><Text style={styles.modalCallOptionText}>Quer ligar para ele agora?</Text></Pressable>}
+            {isDaily && <Pressable style={styles.modalSecondary} onPress={onNextDaily}><Text style={styles.modalSecondaryText}>Outra frase para hoje</Text></Pressable>}
             <Pressable style={styles.modalSecondary} onPress={onClose}><Text style={styles.modalSecondaryText}>Guardar no coração</Text></Pressable>
             <Pressable style={styles.modalPrimary} onPress={onChat}><Text style={styles.modalPrimaryText}>Falar com ele</Text><Feather name="arrow-up-right" size={17} color={colors.primaryForeground} /></Pressable>
           </View>
@@ -949,6 +1024,14 @@ function createStyles(colors: ReturnType<typeof useColors>, width: number) {
     outlineAction: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', borderWidth: 1, borderColor: colors.border, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 9, marginTop: 22 },
     outlineActionText: { color: colors.pinkSoft, fontSize: 12, fontWeight: '700', marginLeft: 7 },
     verseCard: { backgroundColor: colors.glass, borderRadius: 22, borderWidth: 1, borderColor: colors.border, padding: 19, marginBottom: 24 },
+    dailyCard: { backgroundColor: colors.surfaceStrong, borderRadius: 22, borderWidth: 1, borderColor: `${colors.gold}45`, padding: 19, marginBottom: 28, shadowColor: colors.gold, shadowOpacity: 0.12, shadowRadius: 15, shadowOffset: { width: 0, height: 7 }, elevation: 3 },
+    dailyTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    dailyBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: `${colors.gold}14`, borderRadius: 9, paddingHorizontal: 9, paddingVertical: 6, gap: 6 },
+    dailyBadgeText: { color: colors.gold, fontSize: 10, fontWeight: '800', letterSpacing: 1.1 },
+    dailyHeart: { color: colors.primary, fontSize: 25 },
+    dailyPhrase: { color: colors.foreground, fontSize: 17, lineHeight: 26, fontWeight: '600', marginTop: 19 },
+    dailyDivider: { height: 1, backgroundColor: colors.border, marginVertical: 15 },
+    dailyHint: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15 },
     verseTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     verseBadge: { backgroundColor: `${colors.accent}2B`, borderRadius: 9, paddingHorizontal: 9, paddingVertical: 5 },
     verseBadgeText: { color: colors.violetSoft, fontSize: 10, fontWeight: '700' },
