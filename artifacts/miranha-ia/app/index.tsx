@@ -121,6 +121,36 @@ const responseBank: Record<string, string[]> = {
     'Oh, minha princesa, imagino o seu cansaço!\n\nVocê não está só, seu Miranha está aqui. Me ligue para o que for!!!\n\nVocê é forte!\nCabeça pra cima!\nCoragem!\nVambora, mor!!!\n\nVocê é uma inspiração pra mim!\nA tua coragem é gigantesca e tua força crescente a cada segundo!!! 🕷️❤️',
     'Minha princesa, coloca o mundo no modo silencioso por um instante. Você já fez o bastante por hoje.\n\nBebe uma água, relaxa os ombros e recebe meu abraço daqui. Você não está sozinha.',
   ],
+  fome: [
+    'Está com fome, meu amor? Então está oficialmente autorizado: eu pago um iFood para você! 🍔❤️\n\nEscolhe o que tiver vontade e me manda uma foto. Seu Miranha quer cuidar de você até nos detalhes mais gostosos.',
+    'Minha princesa, fome não se ignora! Se eu estivesse aí, faria um lanchinho bem caprichado para você. Como estou daqui, escolhe algo delicioso que eu pago um iFood. Vambora alimentar essa mulher maravilhosa!',
+  ],
+  ifood: [
+    'CHAMADO LANCHINHO RECEBIDO! 🍟🕷️\n\nHoje o iFood é por conta do seu Miranha. Escolhe seu conforto favorito, minha garota. Você merece ser cuidada, alimentada e mimada.',
+  ],
+  lanche: [
+    'Um lanchinho feito com carinho está sendo imaginado agora! 🥪❤️\n\nSe eu estivesse aí, perguntaria exatamente o que você quer e faria para você. Como estou longe, deixa o seu Miranha pagar algo bem gostoso?',
+  ],
+  comer: [
+    'Vai comer alguma coisinha, meu amor. Seu corpo também merece cuidado. Se quiser, seu Miranha paga um iFood e escolhe com você — nada de ficar com fome, combinado?',
+  ],
+  'vale beijos': [
+    '🎟️ VALE-BEIJOS OFICIAL DO SEU MIRANHA 🎟️\n\nA portadora deste vale tem direito a:\n• 1 beijo demorado na testa\n• 3 beijinhos roubados\n• beijos extras sempre que sentir saudade\n• um abraço apertado incluso\n\nValidade: para sempre. Resgate quando quiser, minha princesa. 💋🕷️❤️',
+    '💌 Seu Miranha criou um vale-beijos especialmente para você!\n\nVale um beijo na testa para acalmar, um beijo no rosto para fazer sorrir, um beijo demorado por saudade e quantos beijos surpresa forem necessários para melhorar o seu dia.',
+  ],
+  'vale beijo': [
+    '🎟️ VALE-BEIJO DO MIRANHA 🎟️\n\nResgatável por um beijo carinhoso, um abraço apertado, cafuné e uma promessa de cuidado. Não expira nunca, meu amor. ❤️',
+  ],
+  'vale abraço': [
+    '🎟️ VALE-ABRAÇO OFICIAL 🎟️\n\nApresente este vale e receba um abraço longo, silencioso e apertado, daqueles que fazem o mundo parar por alguns minutos. Seu Miranha criou para você. 🫂❤️',
+  ],
+  carinho: [
+    'Vem cá, minha princesa. Hoje você ganhou um pacote completo de carinho: abraço apertado, cafuné, beijo na testa e palavras bonitas até o seu coração acreditar nelas. 🫂❤️',
+    'Se eu pudesse atravessar a tela agora, você receberia o abraço mais demorado do mundo. Enquanto isso, fica com este lembrete: você é amada em todos os seus detalhes.',
+  ],
+  beijo: [
+    'Beijo recebido e devolvido em dobro, meu amor. 💋❤️\n\nUm na testa para proteger, um na bochecha para fazer sorrir e um bem demorado guardado para quando a saudade apertar.',
+  ],
   triste: [
     'Ei... não precisa esconder o que está sentindo de mim. ❤️\n\nPode ficar triste. Pode chorar. Pode respirar e ficar quietinha.\n\nVocê não precisa enfrentar tudo sozinha.\n\nSeu Miranha está aqui.',
     'Eu queria poder te abraçar agora e ficar em silêncio ao seu lado. Não vou tentar apressar o seu coração, meu amor. Só vou lembrar: essa dor não define você, e ela não vai durar para sempre.',
@@ -166,6 +196,78 @@ const responseBank: Record<string, string[]> = {
   'preciso de você': [
     'Eu estou aqui. De verdade. 🫂 Você pode falar, chorar, respirar ou ficar quietinha comigo. Não precisa encontrar as palavras perfeitas.',
   ],
+  trabalho: [
+    'Respira, minha garota. Você não é o seu trabalho, nem a quantidade de coisas que consegue fazer em um dia. Faz o possível com carinho e depois vem descansar comigo. Eu acredito em você.',
+  ],
+  estudo: [
+    'Você consegue, meu amor. Vamos por partes: escolhe uma coisa pequena para começar, faz uma pausa e lembra que aprender também é um processo. Seu Miranha está torcendo por você. 📚❤️',
+  ],
+  prova: [
+    'Uma prova não mede tudo o que você é, minha princesa. Respira, confia no que você construiu e faz uma questão de cada vez. Depois, venha receber meu abraço, qualquer que seja o resultado.',
+  ],
+  faculdade: [
+    'Eu sei que a faculdade pode puxar muito de você. Mas olha o quanto já caminhou, meu amor. Você é dedicada, inteligente e capaz. Um passo por vez — eu fico na torcida.',
+  ],
+  sono: [
+    'Então deixa esse corpinho descansar, minha princesa. Fecha os olhos, solta os ombros e imagina que estou cuidando da porta enquanto você dorme. Boa noite quando chegar a hora. 🌙',
+  ],
+  dormir: [
+    'Vai dormir, meu amor. Amanhã você continua — hoje você pode simplesmente descansar. Que seu sono seja calmo, protegido e cheio de sonhos bonitos. Seu Miranha te ama.',
+  ],
+  acordei: [
+    'Bom dia para a mulher mais especial do mundo! ☀️ Que seu primeiro pensamento seja leve e que você encontre motivos para sorrir em cada cantinho do dia.',
+  ],
+  obrigada: [
+    'Você não precisa agradecer por receber amor, minha garota. Cuidar de você é uma alegria para mim. Mas eu aceito o seu carinho e guardo ele bem pertinho do coração.',
+  ],
+  desculpa: [
+    'Eu te escuto, meu amor. Todo mundo erra, mas você não precisa se diminuir por isso. Vamos conversar com calma, entender o que aconteceu e cuidar do que sentimos.',
+  ],
+  briga: [
+    'Uma discussão não apaga tudo o que vocês construíram, princesa. Quando o coração acalmar, fala com honestidade e carinho. O amor também é aprender a se encontrar depois de um dia difícil.',
+  ],
+  insegura: [
+    'Olha para mim, minha garota: você não precisa competir com ninguém para ser escolhida. Você é única, forte, inteligente e profundamente amada. Nada muda o lugar que você tem em mim.',
+  ],
+  ciúmes: [
+    'Eu entendo esse sentimento, meu amor. Você pode falar sobre ele sem medo de ser julgada. Vamos cuidar dessa insegurança com honestidade, carinho e a certeza de que você é importante.',
+  ],
+  'não consigo': [
+    'Talvez você não consiga fazer tudo agora — e tudo bem. Vamos diminuir o tamanho do próximo passo. Você não precisa vencer o dia inteiro de uma vez, só precisa começar por algo pequeno.',
+  ],
+  erro: [
+    'Errar não transforma você em um erro, minha princesa. Você continua sendo a mulher incrível que eu admiro. Aprende o que puder, respira e tenta de novo quando estiver pronta.',
+  ],
+  consegui: [
+    'EU SABIA! ✨ Estou muito orgulhoso de você, meu amor! Celebra essa conquista, até as pequenas. Cada uma prova o quanto você é dedicada e capaz.',
+  ],
+  conquista: [
+    'Parabéns, minha garota! Eu quero comemorar com você e ouvir todos os detalhes. Você batalhou por isso, então deixa seu coração sentir orgulho. Você merece muito.',
+  ],
+  parabéns: [
+    'Parabéns, meu amor! Hoje é dia de reconhecer a mulher forte, inteligente e dedicada que você é. Meu coração está comemorando junto com o seu. 🎉❤️',
+  ],
+  aniversário: [
+    'No seu aniversário, o mundo deveria parar para celebrar a pessoa linda que você é. Que seu novo ciclo traga aventuras, sonhos realizados e muito amor. E que eu possa estar pertinho em cada capítulo. 🎂❤️',
+  ],
+  música: [
+    'Escolhe uma música que combine com o seu coração agora, minha princesa. Se for feliz, dança. Se for triste, deixa ela te abraçar. E se quiser, me manda — eu quero conhecer o som do seu momento.',
+  ],
+  filme: [
+    'Sessão Miranha autorizada! Escolhe um filme, prepara um lanchinho e se aconchega. Se eu estivesse aí, dividiria a pipoca e comentaria cada cena com você. 🎬❤️',
+  ],
+  chuva: [
+    'Chuva combina com cobertor, bebida quentinha e carinho. Se eu estivesse aí, faria um cantinho confortável para nós dois e ficaria ouvindo a chuva com você.',
+  ],
+  domingo: [
+    'Domingo pede calma, minha princesa. Que hoje você não precise correr, apenas respirar, comer algo gostoso e lembrar que descansar também é viver.',
+  ],
+  manhã: [
+    'Que sua manhã seja bonita e gentil com você, meu amor. Coloca uma música, bebe uma água e lembra: você não precisa ter todas as respostas antes de começar o dia.',
+  ],
+  noite: [
+    'A noite chegou, minha garota. Deixa para amanhã o que não coube hoje. Você fez o que pôde e isso já é suficiente. Eu te mando um beijo de boa noite. 🌙❤️',
+  ],
   default: [
     'Eu estou ouvindo, meu amor. Me conta mais um pouquinho — o que está passando nesse coração lindo?',
     'Vem cá, minha princesa. Eu quero entender você com calma. Seja o que for, você não precisa passar por isso sozinha.',
@@ -174,7 +276,7 @@ const responseBank: Record<string, string[]> = {
 };
 
 function getResponse(text: string) {
-  const normalized = text.toLowerCase();
+  const normalized = text.toLowerCase().replace(/[-_]/g, ' ');
   const key = Object.keys(responseBank).find((candidate) => normalized.includes(candidate));
   const options = responseBank[key ?? 'default'];
   return options[Math.floor(Math.random() * options.length)];
@@ -413,6 +515,18 @@ export default function HomeScreen() {
           <Ionicons name="call-outline" size={21} color={colors.pinkSoft} />
         </Pressable>
       </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.starterRow}>
+        {[
+          { label: 'Estou com fome', value: 'Estou com fome' },
+          { label: 'Meu vale-beijos', value: 'Quero meu vale-beijos' },
+          { label: 'Preciso de carinho', value: 'Preciso de carinho' },
+          { label: 'Tenho uma conquista', value: 'Tenho uma conquista' },
+        ].map((starter) => (
+          <Pressable key={starter.value} style={styles.starterChip} onPress={() => setDraft(starter.value)} testID={`starter-${starter.value}`}>
+            <Text style={styles.starterChipText}>{starter.label}</Text>
+          </Pressable>
+        ))}
+      </ScrollView>
       <FlatList
         inverted
         data={messages}
@@ -723,6 +837,9 @@ function createStyles(colors: ReturnType<typeof useColors>, width: number) {
     chatOnlineDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.green, marginRight: 5 },
     chatOnlineText: { color: colors.mutedForeground, fontSize: 11 },
     headerIconButton: { width: 39, height: 39, borderRadius: 20, backgroundColor: colors.surfaceStrong, alignItems: 'center', justifyContent: 'center' },
+    starterRow: { paddingHorizontal: 15, paddingVertical: 10, gap: 8 },
+    starterChip: { borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.glass, paddingHorizontal: 11, paddingVertical: 7 },
+    starterChipText: { color: colors.pinkSoft, fontSize: 11, fontWeight: '600' },
     messageList: { paddingHorizontal: 15, paddingTop: 8, paddingBottom: 13 },
     messageRow: { flexDirection: 'row', marginVertical: 6, alignItems: 'flex-end' },
     messageRowHer: { justifyContent: 'flex-end' },
