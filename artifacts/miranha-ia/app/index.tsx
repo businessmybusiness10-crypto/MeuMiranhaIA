@@ -49,7 +49,7 @@ const initialMessages: Message[] = [
 const declarations = [
   'Eu te amo por quem tu és, teu jeito é tão especial, forte, inteligente, dedicada, eu amo a forma em que você vê o mundo e que traz diversão ao mundo, esse jeitinho que busca pela justiça das pessoas, principalmente as que não conseguem se defender, que busca trazer a cor ao mundo daqueles que você ama, esse sorriso maravilhoso, esse olhar brilhante, amo até suas implicâncias kk, a mulher da minha vida, isso foi só 1% do porque eu te amo infinitamente! ❤️',
   'Eu amo muito os nossos momentos canônicos. Amo nossas aventuras e amo como conseguimos transformar até uma calçada em um momento de sonho, sentados olhando as estrelas. Com você, qualquer instante pode virar uma história inesquecível. ✨❤️',
-  'Eu admiro a força que mora em você, até nos dias em que você mesma não consegue enxergá-la.',
+  'Amar a ti é ter uma das melhores experiências da minha vida. Compartilhar a vida contigo, os momentos, as aventuras, as conquistas, as tristezas — o que for — é perfeito tendo você ao meu lado! Penedo, Campos do Jordão, Guaratiba, seja onde for, se torna nossa história! ❤️',
   'Você transforma momentos simples em memórias que eu quero guardar para sempre.',
   'Eu amo o carinho que você oferece, até quando o seu próprio coração está pedindo colo.',
   'A sua companhia faz qualquer lugar parecer casa. Com você, eu me sinto exatamente onde devo estar.',
