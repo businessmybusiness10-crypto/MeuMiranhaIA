@@ -32,6 +32,8 @@ type Message = {
   time: string;
 };
 
+const MIRANHA_GREETING = 'miranha aqui! Como posso lhe ajudar?';
+
 const STORAGE_KEYS = {
   messages: '@miranha/messages',
   story: '@miranha/story',
@@ -40,7 +42,7 @@ const STORAGE_KEYS = {
 const initialMessages: Message[] = [
   {
     id: 'welcome',
-    text: 'Oi, minha princesa. Eu sou o seu Miranha. 🕷️❤️\n\nMe conta como o seu coração está hoje. Eu fico aqui com você.',
+    text: 'miranha aqui! Como posso lhe ajudar?\n\nOi, minha princesa. Eu sou o seu Miranha. 🕷️❤️\n\nMe conta como o seu coração está hoje. Eu fico aqui com você.',
     from: 'miranha',
     time: 'agora',
   },
@@ -327,7 +329,14 @@ export default function HomeScreen() {
     AsyncStorage.multiGet([STORAGE_KEYS.messages, STORAGE_KEYS.story]).then(([savedMessages, savedStory]) => {
       if (savedMessages[1]) {
         try {
-          setMessages(JSON.parse(savedMessages[1]) as Message[]);
+          const storedMessages = JSON.parse(savedMessages[1]) as Message[];
+          setMessages(
+            storedMessages.map((message) =>
+              message.from === 'miranha' && !message.text.startsWith(MIRANHA_GREETING)
+                ? { ...message, text: `${MIRANHA_GREETING}\n\n${message.text}` }
+                : message,
+            ),
+          );
         } catch {
           // Keep the welcoming local conversation if storage is malformed.
         }
@@ -381,7 +390,7 @@ export default function HomeScreen() {
     setTimeout(() => {
       const answer: Message = {
         id: `${Date.now()}-miranha`,
-        text: getResponse(cleanDraft),
+        text: `${MIRANHA_GREETING}\n\n${getResponse(cleanDraft)}`,
         from: 'miranha',
         time: nowLabel(),
       };
