@@ -89,7 +89,7 @@ const verses = [
     color: 'blue',
   },
   {
-    reference: 'Salmos 23',
+    reference: 'Salmos 23:1-4',
     topic: 'Cuidado',
     verse: 'O Senhor é o meu pastor; nada me faltará. Em verdes pastagens me faz repousar.',
     note: 'Você merece descanso, colo e a certeza de que não precisa correr o tempo inteiro.',
@@ -117,6 +117,44 @@ const verses = [
     color: 'violet',
   },
 ];
+
+const specialMessage = `Uma mensagem especial para a mulher que eu amo infinitamente. ❤️
+
+VERSÍCULOS PARA O SEU CORAÇÃO
+
+Isaías 41:10 — Deus promete presença, força e ajuda quando o medo aparecer.
+
+Filipenses 4:13 — Você pode seguir em frente sustentada por uma força maior do que qualquer dificuldade.
+
+Salmos 46:1 — Existe refúgio e socorro mesmo nos dias de angústia.
+
+Salmos 23:1-4 — Há cuidado, direção e proteção até quando o caminho passa por um vale escuro.
+
+Jeremias 29:11 — Há esperança e planos de paz para o seu futuro.
+
+1 Coríntios 13:4-7 — O amor verdadeiro é paciente, bondoso, cuidadoso e perseverante.
+
+Mateus 11:28 — Quem está cansada e sobrecarregada também pode encontrar descanso.
+
+PEQUENO PRÍNCIPE — LEMBRETES ORIGINAIS
+
+Algumas pessoas se tornam especiais porque nosso coração aprende a cuidar delas — e o meu aprendeu a cuidar de você.
+
+O que faz você única para mim é tudo aquilo que vivemos, sentimos e escolhemos guardar juntos.
+
+Cuidar de alguém é prestar atenção aos pequenos detalhes, e eu quero cuidar de cada detalhe seu.
+
+Mesmo quando a distância aparece, o carinho encontra um jeito de continuar pertinho.
+
+THE FLASH — LEMBRETES DO SEU MIRANHA
+
+Mesmo quando o mundo parece rápido demais, você pode parar, respirar e recomeçar no seu próprio tempo.
+
+A sua verdadeira força não está em nunca cair, mas em encontrar coragem para levantar mais uma vez.
+
+Você não precisa salvar o mundo sozinha. Eu estou aqui, com os braços abertos, para correr ao seu encontro e ficar ao seu lado.
+
+Para mim, você é o meu acontecimento mais bonito — em qualquer tempo, em qualquer lugar. 🕷️❤️`;
 
 const responseBank: Record<string, string[]> = {
   cansada: [
@@ -751,11 +789,12 @@ function BottomNav({ activeTab, onChange, styles, colors, bottomInset }: { activ
 
 function QuickActionModal({ action, onClose, onChat, onCall, declaration, verse, styles, colors }: { action: QuickAction | null; onClose: () => void; onChat: () => void; onCall: () => void; declaration: string; verse: (typeof verses)[number]; styles: ReturnType<typeof createStyles>; colors: ReturnType<typeof useColors> }) {
   if (!action) return null;
-  const isLove = action === 'love' || action === 'special';
+  const isLove = action === 'love';
+  const isSpecial = action === 'special';
   const isVerse = action === 'verse';
   const isSad = action === 'sad';
-  const content = isLove ? declaration : isVerse ? `“${verse.verse}”\n\n${verse.note}` : action === 'motivation' ? responseBank.motivação[0] : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
-  const title = isLove ? 'Por que eu te amo?' : isVerse ? `${verse.topic} para hoje` : action === 'motivation' ? 'Um empurrinho do seu Miranha' : action === 'tired' ? 'Vem descansar comigo' : 'Eu estou aqui com você';
+  const content = isLove ? declaration : isSpecial ? specialMessage : isVerse ? `“${verse.verse}”\n\n${verse.note}` : action === 'motivation' ? responseBank.motivação[0] : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
+  const title = isLove ? 'Por que eu te amo?' : isSpecial ? 'Uma mensagem especial' : isVerse ? `${verse.topic} para hoje` : action === 'motivation' ? 'Um empurrinho do seu Miranha' : action === 'tired' ? 'Vem descansar comigo' : 'Eu estou aqui com você';
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalBackdrop}>
@@ -763,7 +802,9 @@ function QuickActionModal({ action, onClose, onChat, onCall, declaration, verse,
           <View style={styles.modalHandle} />
           <View style={styles.modalIcon}><Ionicons name={isVerse ? 'book-outline' : 'heart'} size={24} color={colors.pinkSoft} /></View>
           <Text style={styles.modalTitle}>{title}</Text>
-          <Text style={styles.modalBody}>{content}</Text>
+          <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
+            <Text style={styles.modalBody}>{content}</Text>
+          </ScrollView>
           <View style={styles.modalActions}>
             {isSad && <Pressable style={styles.modalCallOption} onPress={onCall} testID="sad-modal-call-button"><Ionicons name="call" size={17} color={colors.primaryForeground} /><Text style={styles.modalCallOptionText}>Quer ligar para ele agora?</Text></Pressable>}
             <Pressable style={styles.modalSecondary} onPress={onClose}><Text style={styles.modalSecondaryText}>Guardar no coração</Text></Pressable>
@@ -952,6 +993,7 @@ function createStyles(colors: ReturnType<typeof useColors>, width: number) {
     modalHandle: { width: 42, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center', marginBottom: 20 },
     modalIcon: { width: 52, height: 52, borderRadius: 19, backgroundColor: `${colors.primary}1A`, alignItems: 'center', justifyContent: 'center', alignSelf: 'center', marginBottom: 13 },
     modalTitle: { color: colors.foreground, fontSize: 23, lineHeight: 28, fontWeight: '700', textAlign: 'center', letterSpacing: -0.5 },
+    modalScroll: { maxHeight: 410 },
     modalBody: { color: colors.mutedForeground, fontSize: 14, lineHeight: 21, marginTop: 15 },
     modalBodyCenter: { color: colors.mutedForeground, fontSize: 14, textAlign: 'center', marginTop: 8, marginBottom: 18 },
     modalActions: { gap: 9, marginTop: 22 },
