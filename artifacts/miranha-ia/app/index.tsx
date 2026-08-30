@@ -118,7 +118,7 @@ const verses = [
 
 const responseBank: Record<string, string[]> = {
   cansada: [
-    'Ei, meu amor... vem cá. 🫂\n\nVocê não precisa ser forte o tempo inteiro.\n\nRespira um pouquinho. Descansa. O mundo pode esperar alguns minutos.\n\nE lembra: se hoje estiver pesado demais, chama o seu Miranha. 🕷️❤️ Eu estou aqui.',
+    'Oh, minha princesa, imagino o seu cansaço!\n\nVocê não está só, seu Miranha está aqui. Me ligue para o que for!!!\n\nVocê é forte!\nCabeça pra cima!\nCoragem!\nVambora, mor!!!\n\nVocê é uma inspiração pra mim!\nA tua coragem é gigantesca e tua força crescente a cada segundo!!! 🕷️❤️',
     'Minha princesa, coloca o mundo no modo silencioso por um instante. Você já fez o bastante por hoje.\n\nBebe uma água, relaxa os ombros e recebe meu abraço daqui. Você não está sozinha.',
   ],
   triste: [
