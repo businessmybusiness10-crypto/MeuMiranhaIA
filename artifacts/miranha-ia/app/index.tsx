@@ -53,7 +53,7 @@ const declarations = [
   'Viver contigo é saber que, dia após dia, eu terei uma novidade, uma aventura e um motivo para sorrir. Viver contigo é uma experiência única, pois todos os dias eu tenho um novo motivo para me apaixonar por você. ❤️',
   'A vida floresce em meu peito graças a você, pois esteve comigo em meus maiores momentos de dificuldade, quando a escuridão dominava o meu peito e a minha alma se partia. Porém, com teu amor, conseguiste unir cada pedaço da minha alma e iluminar cada escuridão que me dominava. Graças a ti, eu conheci o amor. Graças a ti, a vida se iluminou. ❤️',
   'Vivo dia após dia, de segunda a sexta, uma rotina cansativa. Porém, o cansaço se evapora graças à tua presença, fazendo essa rotina se tornar algo completamente diferente do que se denomina rotina. Torna-se puro amor, pois, no final de cada dia, deito-me em minha cama e sorrio, agradecendo a Deus pela mulher que tenho em minha vida. ❤️',
-  'Eu amo imaginar o nosso futuro, construído com pequenas escolhas, risadas e muito cuidado.',
+  'Flor após flor, cor após cor. Vejo o brilho do céu, as cores de cada flor e dedico a ti. Sabes por quê? Porque és assim. É você que ilumina a minha vida, que colore os meus dias e que traz brilho para a minha alma. Então, o mínimo que posso fazer é todos os dias trazer algo belo a ti, pois você faz a minha alma sorrir com toda a intensidade de todo o mundo. 🌹❤️',
   'Você é uma das partes mais bonitas da minha vida e eu nunca quero que você se esqueça disso.',
   'Até a saudade tem um lado bonito: ela prova o tamanho do espaço que você ocupa em mim.',
   'Eu quero cuidar de você nos dias leves e, principalmente, nos dias em que tudo parecer pesado.',
