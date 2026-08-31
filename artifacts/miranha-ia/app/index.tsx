@@ -8,6 +8,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Animated,
+  Easing,
   FlatList,
   Linking,
   Modal,
@@ -414,6 +415,8 @@ export default function HomeScreen() {
   ]);
   const pulse = useRef(new Animated.Value(1)).current;
   const heartFloat = useRef(new Animated.Value(0)).current;
+  const radarRotation = useRef(new Animated.Value(0)).current;
+  const radarPulse = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.loop(
@@ -428,7 +431,16 @@ export default function HomeScreen() {
         Animated.timing(heartFloat, { toValue: 0, duration: 1, useNativeDriver: true }),
       ]),
     ).start();
-  }, [heartFloat, pulse]);
+    Animated.loop(
+      Animated.timing(radarRotation, { toValue: 1, duration: 4600, easing: Easing.linear, useNativeDriver: true }),
+    ).start();
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(radarPulse, { toValue: 1, duration: 1700, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        Animated.timing(radarPulse, { toValue: 0, duration: 1, useNativeDriver: true }),
+      ]),
+    ).start();
+  }, [heartFloat, pulse, radarPulse, radarRotation]);
 
   useEffect(() => {
     AsyncStorage.multiGet([STORAGE_KEYS.messages, STORAGE_KEYS.story]).then(([savedMessages, savedStory]) => {
@@ -553,6 +565,24 @@ export default function HomeScreen() {
           <View style={[styles.webLine, styles.webLineThree]} />
           <View style={[styles.webArc, styles.webArcOne]} />
           <View style={[styles.webArc, styles.webArcTwo]} />
+          <Animated.View
+            style={[
+              styles.radarSweep,
+              { transform: [{ rotate: radarRotation.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] },
+            ]}
+          >
+            <View style={styles.radarSweepLine} />
+          </Animated.View>
+          <Animated.View
+            style={[
+              styles.radarPing,
+              {
+                transform: [{ scale: radarPulse.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1.8] }) }],
+                opacity: radarPulse.interpolate({ inputRange: [0, 0.2, 1], outputRange: [0.9, 0.65, 0] }),
+              },
+            ]}
+          />
+          <View style={styles.radarCenter}><View style={styles.radarCenterDot} /></View>
         </View>
         <Animated.View
           style={[
@@ -932,6 +962,11 @@ function createStyles(colors: ReturnType<typeof useColors>, width: number) {
     heroWrap: { backgroundColor: colors.surface, borderRadius: 30, overflow: 'hidden', minHeight: 368, padding: 25, justifyContent: 'center', borderWidth: 1, borderColor: colors.border, marginBottom: 29 },
     heroOrb: { position: 'absolute', width: 290, height: 290, borderRadius: 145, backgroundColor: colors.primary, opacity: 0.07, top: -110, right: -95 },
     webDecor: { position: 'absolute', width: 170, height: 170, right: -12, top: 10, opacity: 0.4 },
+    radarSweep: { position: 'absolute', width: 170, height: 170, left: 0, top: 0 },
+    radarSweepLine: { position: 'absolute', width: 2, height: 78, left: 84, top: 7, backgroundColor: colors.primary, opacity: 0.9, shadowColor: colors.primary, shadowOpacity: 0.9, shadowRadius: 8, shadowOffset: { width: 0, height: 0 } },
+    radarPing: { position: 'absolute', width: 13, height: 13, borderRadius: 7, borderWidth: 2, borderColor: colors.primary, left: 78.5, top: 78.5, shadowColor: colors.primary, shadowOpacity: 0.85, shadowRadius: 9, shadowOffset: { width: 0, height: 0 } },
+    radarCenter: { position: 'absolute', width: 18, height: 18, borderRadius: 9, left: 76, top: 76, backgroundColor: `${colors.background}CC`, borderWidth: 1, borderColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+    radarCenterDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.primary, shadowColor: colors.primary, shadowOpacity: 1, shadowRadius: 7, shadowOffset: { width: 0, height: 0 } },
     webLine: { position: 'absolute', width: 1, height: 210, backgroundColor: colors.pinkSoft, left: 83, top: -20, transform: [{ rotate: '45deg' }] },
     webLineOne: { transform: [{ rotate: '0deg' }] },
     webLineTwo: { transform: [{ rotate: '90deg' }] },
