@@ -588,7 +588,7 @@ export default function HomeScreen() {
 
   const callMiranha = async () => {
     try {
-      await Linking.openURL('tel:+5521981198840');
+      await Linking.openURL('tel:21981198840');
       setIsSummonOpen(false);
     } catch {
       Alert.alert('Ligação', 'O aparelho não conseguiu iniciar a ligação agora.');
