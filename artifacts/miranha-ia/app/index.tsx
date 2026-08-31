@@ -24,7 +24,7 @@ import {
 } from 'react-native';
 import { useColors } from '@/hooks/useColors';
 
-type TabKey = 'home' | 'ia' | 'love' | 'miranha';
+type TabKey = 'home' | 'ia' | 'love' | 'miranha' | 'admin';
 type QuickAction = 'love' | 'tired' | 'sad' | 'angry' | 'motivation' | 'daily' | 'verse' | 'special' | 'chat';
 type Message = {
   id: string;
@@ -34,11 +34,15 @@ type Message = {
 };
 
 const MIRANHA_GREETING = 'miranha aqui! Como posso lhe ajudar?';
+const ADMIN_PASSWORD = '231124';
+const DEFAULT_PROMISE = 'Posso não estar presente pessoalmente, mas estou ao teu lado, não hesite em me chamar, ao teu lado vou estar!!!';
 
 const STORAGE_KEYS = {
   messages: '@miranha/messages',
   story: '@miranha/story',
   flowers: '@miranha/flowers',
+  declarations: '@miranha/declarations',
+  miranhaPromise: '@miranha/miranha-promise',
 };
 
 const initialMessages: Message[] = [
@@ -50,7 +54,7 @@ const initialMessages: Message[] = [
   },
 ];
 
-const declarations = [
+const DEFAULT_DECLARATIONS = [
   'Eu te amo por quem tu és, teu jeito é tão especial, forte, inteligente, dedicada, eu amo a forma em que você vê o mundo e que traz diversão ao mundo, esse jeitinho que busca pela justiça das pessoas, principalmente as que não conseguem se defender, que busca trazer a cor ao mundo daqueles que você ama, esse sorriso maravilhoso, esse olhar brilhante, amo até suas implicâncias kk, a mulher da minha vida, isso foi só 1% do porque eu te amo infinitamente! ❤️',
   'Eu amo muito os nossos momentos canônicos. Amo nossas aventuras e amo como conseguimos transformar até uma calçada em um momento de sonho, sentados olhando as estrelas. Com você, qualquer instante pode virar uma história inesquecível. ✨❤️',
   'Amar a ti é ter uma das melhores experiências da minha vida. Compartilhar a vida contigo, os momentos, as aventuras, as conquistas, as tristezas — o que for — é perfeito tendo você ao meu lado! Penedo, Campos do Jordão, Guaratiba, seja onde for, se torna nossa história! ❤️',
@@ -416,10 +420,17 @@ export default function HomeScreen() {
   const [dailyPhraseIndex, setDailyPhraseIndex] = useState(() => (getDayOfYear(new Date()) - 1) % dailyPhrases.length);
   const [verseIndex, setVerseIndex] = useState(0);
   const [flowerCount, setFlowerCount] = useState(0);
+  const [declarations, setDeclarations] = useState<string[]>(DEFAULT_DECLARATIONS);
+  const [miranhaPromise, setMiranhaPromise] = useState(DEFAULT_PROMISE);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [draft, setDraft] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showCallPrompt, setShowCallPrompt] = useState(false);
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminPromiseDraft, setAdminPromiseDraft] = useState(DEFAULT_PROMISE);
+  const [adminDeclarationDraft, setAdminDeclarationDraft] = useState('');
+  const [adminEditingDeclarationIndex, setAdminEditingDeclarationIndex] = useState<number | null>(null);
   const [story, setStory] = useState([
     { id: '1', title: 'Nosso primeiro capítulo ❤️', body: 'Escreva aqui como tudo começou...' },
     { id: '2', title: 'Um momento que nunca vou esquecer', body: 'Um detalhe, uma risada, um abraço...' },
@@ -431,7 +442,7 @@ export default function HomeScreen() {
   const radarRotation = useRef(new Animated.Value(0)).current;
   const radarPulse = useRef(new Animated.Value(0)).current;
   const flowerBurst = useRef(new Animated.Value(0)).current;
-  const flowersLoaded = useRef(false);
+  const storageLoaded = useRef(false);
 
   useEffect(() => {
     Animated.loop(
@@ -458,7 +469,7 @@ export default function HomeScreen() {
   }, [heartFloat, pulse, radarPulse, radarRotation]);
 
   useEffect(() => {
-    AsyncStorage.multiGet([STORAGE_KEYS.messages, STORAGE_KEYS.story, STORAGE_KEYS.flowers]).then(([savedMessages, savedStory, savedFlowers]) => {
+    AsyncStorage.multiGet([STORAGE_KEYS.messages, STORAGE_KEYS.story, STORAGE_KEYS.flowers, STORAGE_KEYS.declarations, STORAGE_KEYS.miranhaPromise]).then(([savedMessages, savedStory, savedFlowers, savedDeclarations, savedPromise]) => {
       if (savedMessages[1]) {
         try {
           const storedMessages = JSON.parse(savedMessages[1]) as Message[];
@@ -484,7 +495,21 @@ export default function HomeScreen() {
         const storedFlowerCount = Number.parseInt(savedFlowers[1], 10);
         if (Number.isFinite(storedFlowerCount) && storedFlowerCount >= 0) setFlowerCount(storedFlowerCount);
       }
-      flowersLoaded.current = true;
+      if (savedDeclarations[1]) {
+        try {
+          const storedDeclarations = JSON.parse(savedDeclarations[1]) as unknown;
+          if (Array.isArray(storedDeclarations) && storedDeclarations.length > 0 && storedDeclarations.every((item) => typeof item === 'string')) {
+            setDeclarations(storedDeclarations as string[]);
+          }
+        } catch {
+          // Keep the original declarations if storage is malformed.
+        }
+      }
+      if (savedPromise[1]) {
+        setMiranhaPromise(savedPromise[1]);
+        setAdminPromiseDraft(savedPromise[1]);
+      }
+      storageLoaded.current = true;
     });
   }, []);
 
@@ -497,8 +522,16 @@ export default function HomeScreen() {
   }, [story]);
 
   useEffect(() => {
-    if (flowersLoaded.current) AsyncStorage.setItem(STORAGE_KEYS.flowers, String(flowerCount));
+    if (storageLoaded.current) AsyncStorage.setItem(STORAGE_KEYS.flowers, String(flowerCount));
   }, [flowerCount]);
+
+  useEffect(() => {
+    if (storageLoaded.current) AsyncStorage.setItem(STORAGE_KEYS.declarations, JSON.stringify(declarations));
+  }, [declarations]);
+
+  useEffect(() => {
+    if (storageLoaded.current) AsyncStorage.setItem(STORAGE_KEYS.miranhaPromise, miranhaPromise);
+  }, [miranhaPromise]);
 
   const goTo = (tab: TabKey) => {
     Haptics.selectionAsync();
@@ -577,6 +610,118 @@ export default function HomeScreen() {
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
+  };
+
+  const handleAdminLogin = () => {
+    if (adminPassword === ADMIN_PASSWORD) {
+      setIsAdminUnlocked(true);
+      setAdminPassword('');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      setAdminPassword('');
+      Alert.alert('Senha incorreta', 'Confira a senha e tente novamente.');
+    }
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminUnlocked(false);
+    setAdminPassword('');
+    setAdminEditingDeclarationIndex(null);
+    setAdminDeclarationDraft('');
+  };
+
+  const saveAdminPromise = () => {
+    const cleanPromise = adminPromiseDraft.trim();
+    if (!cleanPromise) {
+      Alert.alert('Texto vazio', 'Digite uma mensagem antes de salvar.');
+      return;
+    }
+    setMiranhaPromise(cleanPromise);
+    setAdminPromiseDraft(cleanPromise);
+    Alert.alert('Salvo', 'A mensagem do Miranha foi atualizada.');
+  };
+
+  const addDeclaration = () => {
+    const cleanDeclaration = adminDeclarationDraft.trim();
+    if (!cleanDeclaration) {
+      Alert.alert('Texto vazio', 'Digite uma declaração antes de adicionar.');
+      return;
+    }
+    setDeclarations((current) => [...current, cleanDeclaration]);
+    setAdminDeclarationDraft('');
+    Alert.alert('Declaração adicionada', 'Ela já está disponível na área Amor.');
+  };
+
+  const startEditingDeclaration = (index: number) => {
+    setAdminEditingDeclarationIndex(index);
+    setAdminDeclarationDraft(declarations[index]);
+  };
+
+  const cancelEditingDeclaration = () => {
+    setAdminEditingDeclarationIndex(null);
+    setAdminDeclarationDraft('');
+  };
+
+  const saveEditedDeclaration = () => {
+    if (adminEditingDeclarationIndex === null) return;
+    const cleanDeclaration = adminDeclarationDraft.trim();
+    if (!cleanDeclaration) {
+      Alert.alert('Texto vazio', 'Digite uma declaração antes de salvar.');
+      return;
+    }
+    setDeclarations((current) => current.map((declaration, index) => index === adminEditingDeclarationIndex ? cleanDeclaration : declaration));
+    cancelEditingDeclaration();
+  };
+
+  const removeDeclaration = (index: number) => {
+    if (declarations.length <= 1) {
+      Alert.alert('Não é possível remover', 'Mantenha pelo menos uma declaração de amor.');
+      return;
+    }
+    Alert.alert('Remover declaração?', 'Esse texto será apagado do aplicativo.', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Remover',
+        style: 'destructive',
+        onPress: () => {
+          setDeclarations((current) => current.filter((_, declarationIndexToRemove) => declarationIndexToRemove !== index));
+          setDeclarationIndex((current) => Math.min(current, declarations.length - 2));
+          if (adminEditingDeclarationIndex === index) cancelEditingDeclaration();
+        },
+      },
+    ]);
+  };
+
+  const resetFlowers = () => {
+    Alert.alert('Zerar flores recebidas?', 'A contagem atual será apagada do dispositivo.', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Zerar', style: 'destructive', onPress: () => setFlowerCount(0) },
+    ]);
+  };
+
+  const clearChat = () => {
+    Alert.alert('Limpar conversa?', 'Todo o histórico local do chat será removido.', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Limpar', style: 'destructive', onPress: () => { setMessages(initialMessages); setShowCallPrompt(false); } },
+    ]);
+  };
+
+  const restoreDefaults = () => {
+    Alert.alert('Restaurar textos padrão?', 'As declarações e a mensagem do Miranha voltarão ao conteúdo original.', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Restaurar',
+        style: 'destructive',
+        onPress: () => {
+          setDeclarations(DEFAULT_DECLARATIONS);
+          setMiranhaPromise(DEFAULT_PROMISE);
+          setAdminPromiseDraft(DEFAULT_PROMISE);
+          setAdminEditingDeclarationIndex(null);
+          setAdminDeclarationDraft('');
+          setDeclarationIndex(0);
+        },
+      },
+    ]);
   };
 
   const renderHome = () => (
@@ -895,7 +1040,7 @@ export default function HomeScreen() {
       </View>
       <View style={styles.promiseCard}>
         <Text style={styles.promiseQuote}>“</Text>
-        <Text style={styles.promiseText}>Posso não estar presente pessoalmente, mas estou ao teu lado, não hesite em me chamar, ao teu lado vou estar!!!</Text>
+        <Text style={styles.promiseText}>{miranhaPromise}</Text>
         <Text style={styles.promiseSign}>-meu miranha</Text>
       </View>
       <Pressable style={styles.contactCard} onPress={() => setIsSummonOpen(true)} testID="contact-card">
@@ -907,7 +1052,159 @@ export default function HomeScreen() {
     </ScrollView>
   );
 
-  const content = activeTab === 'home' ? renderHome() : activeTab === 'ia' ? renderChat() : activeTab === 'love' ? renderLove() : renderMiranha();
+  const renderAdmin = () => {
+    if (!isAdminUnlocked) {
+      return (
+        <KeyboardAvoidingView style={styles.adminScreen} behavior="padding">
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[styles.scrollContent, styles.adminLockContent, { paddingTop: insets.top + 18, paddingBottom: insets.bottom + 112 }]}
+          >
+            <View style={styles.adminLockCard}>
+              <View style={styles.adminLockIcon}><Feather name="shield" size={25} color={colors.pinkSoft} /></View>
+              <Text style={styles.adminEyebrow}>ÁREA RESTRITA</Text>
+              <Text style={styles.adminLockTitle}>Administrador</Text>
+              <Text style={styles.adminLockSubtitle}>Entre para cuidar dos textos, flores e configurações do seu cantinho.</Text>
+              <TextInput
+                value={adminPassword}
+                onChangeText={setAdminPassword}
+                placeholder="Digite a senha"
+                placeholderTextColor={colors.mutedForeground}
+                secureTextEntry
+                keyboardType="number-pad"
+                maxLength={6}
+                style={styles.adminInput}
+                onSubmitEditing={handleAdminLogin}
+                testID="admin-password-input"
+              />
+              <Pressable style={styles.adminPrimaryButton} onPress={handleAdminLogin} testID="admin-login-button">
+                <Feather name="unlock" size={17} color={colors.primaryForeground} />
+                <Text style={styles.adminPrimaryText}>Entrar no administrador</Text>
+              </Pressable>
+              <Text style={styles.adminLocalNote}>Acesso protegido localmente neste dispositivo.</Text>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      );
+    }
+
+    return (
+      <KeyboardAvoidingView style={styles.adminScreen} behavior="padding">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 18, paddingBottom: insets.bottom + 112 }]}
+        >
+          <View style={styles.adminHeader}>
+            <View>
+              <Text style={styles.adminEyebrow}>PAINEL LOCAL</Text>
+              <Text style={styles.adminTitle}>Administrador</Text>
+              <Text style={styles.adminSubtitle}>Tudo do seu Miranha em um só lugar.</Text>
+            </View>
+            <Pressable style={styles.adminLogoutButton} onPress={handleAdminLogout} testID="admin-logout-button">
+              <Feather name="log-out" size={17} color={colors.mutedForeground} />
+            </Pressable>
+          </View>
+
+          <View style={styles.adminStats}>
+            <View style={styles.adminStatCard}><Text style={styles.adminStatNumber}>{flowerCount}</Text><Text style={styles.adminStatLabel}>flores recebidas</Text></View>
+            <View style={styles.adminStatCard}><Text style={styles.adminStatNumber}>{declarations.length}</Text><Text style={styles.adminStatLabel}>declarações</Text></View>
+          </View>
+
+          <View style={styles.adminSection}>
+            <Text style={styles.adminSectionEyebrow}>TEXTOS</Text>
+            <Text style={styles.adminSectionTitle}>Mensagem da aba Miranha</Text>
+            <Text style={styles.adminSectionHint}>Edite a promessa que aparece no cartão do seu Miranha.</Text>
+            <TextInput
+              value={adminPromiseDraft}
+              onChangeText={setAdminPromiseDraft}
+              multiline
+              textAlignVertical="top"
+              style={[styles.adminInput, styles.adminTextArea]}
+              placeholder="Escreva a mensagem..."
+              placeholderTextColor={colors.mutedForeground}
+              testID="admin-promise-input"
+            />
+            <Pressable style={styles.adminSecondaryButton} onPress={saveAdminPromise} testID="admin-save-promise-button">
+              <Feather name="save" size={16} color={colors.pinkSoft} />
+              <Text style={styles.adminSecondaryText}>Salvar mensagem</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.adminSection}>
+            <Text style={styles.adminSectionEyebrow}>DECLARAÇÕES</Text>
+            <Text style={styles.adminSectionTitle}>Declarações de amor</Text>
+            <Text style={styles.adminSectionHint}>Adicione, edite ou remova as mensagens da aba Amor.</Text>
+            {declarations.map((declaration, index) => (
+              <View key={`${index}-${declaration.slice(0, 12)}`} style={styles.adminDeclarationRow}>
+                <View style={styles.adminDeclarationIndex}><Text style={styles.adminDeclarationIndexText}>{String(index + 1).padStart(2, '0')}</Text></View>
+                <Text style={styles.adminDeclarationText} numberOfLines={3}>{declaration}</Text>
+                <View style={styles.adminDeclarationActions}>
+                  <Pressable style={styles.adminIconButton} onPress={() => startEditingDeclaration(index)} testID={`admin-edit-declaration-${index}`}><Feather name="edit-2" size={15} color={colors.pinkSoft} /></Pressable>
+                  <Pressable style={styles.adminIconButton} onPress={() => removeDeclaration(index)} testID={`admin-delete-declaration-${index}`}><Feather name="trash-2" size={15} color={colors.redGlow} /></Pressable>
+                </View>
+              </View>
+            ))}
+            {adminEditingDeclarationIndex !== null && (
+              <View style={styles.adminEditBox}>
+                <Text style={styles.adminFieldLabel}>Editando declaração {adminEditingDeclarationIndex + 1}</Text>
+                <TextInput
+                  value={adminDeclarationDraft}
+                  onChangeText={setAdminDeclarationDraft}
+                  multiline
+                  textAlignVertical="top"
+                  style={[styles.adminInput, styles.adminTextArea]}
+                  placeholderTextColor={colors.mutedForeground}
+                  testID="admin-edit-declaration-input"
+                />
+                <View style={styles.adminButtonRow}>
+                  <Pressable style={styles.adminCancelButton} onPress={cancelEditingDeclaration}><Text style={styles.adminCancelText}>Cancelar</Text></Pressable>
+                  <Pressable style={styles.adminSecondaryButton} onPress={saveEditedDeclaration} testID="admin-save-declaration-button"><Feather name="check" size={16} color={colors.pinkSoft} /><Text style={styles.adminSecondaryText}>Salvar edição</Text></Pressable>
+                </View>
+              </View>
+            )}
+            <Text style={styles.adminFieldLabel}>Nova declaração</Text>
+            <TextInput
+              value={adminEditingDeclarationIndex === null ? adminDeclarationDraft : ''}
+              onChangeText={(value) => { if (adminEditingDeclarationIndex === null) setAdminDeclarationDraft(value); }}
+              multiline
+              textAlignVertical="top"
+              style={[styles.adminInput, styles.adminTextArea]}
+              placeholder="Escreva uma nova declaração de amor..."
+              placeholderTextColor={colors.mutedForeground}
+              editable={adminEditingDeclarationIndex === null}
+              testID="admin-new-declaration-input"
+            />
+            {adminEditingDeclarationIndex === null && <Pressable style={styles.adminSecondaryButton} onPress={addDeclaration} testID="admin-add-declaration-button"><Feather name="plus" size={16} color={colors.pinkSoft} /><Text style={styles.adminSecondaryText}>Adicionar declaração</Text></Pressable>}
+          </View>
+
+          <View style={styles.adminSection}>
+            <Text style={styles.adminSectionEyebrow}>CONTROLES</Text>
+            <Text style={styles.adminSectionTitle}>Ferramentas do aplicativo</Text>
+            <Pressable style={styles.adminActionRow} onPress={resetFlowers} testID="admin-reset-flowers-button">
+              <View style={[styles.adminActionIcon, { backgroundColor: `${colors.gold}1A` }]}><Ionicons name="flower-outline" size={19} color={colors.gold} /></View>
+              <View style={styles.adminActionCopy}><Text style={styles.adminActionTitle}>Zerar flores recebidas</Text><Text style={styles.adminActionSubtitle}>A contagem atual é {flowerCount}.</Text></View>
+              <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+            </Pressable>
+            <Pressable style={styles.adminActionRow} onPress={clearChat} testID="admin-clear-chat-button">
+              <View style={[styles.adminActionIcon, { backgroundColor: `${colors.blue}1A` }]}><Ionicons name="chatbubbles-outline" size={19} color={colors.blue} /></View>
+              <View style={styles.adminActionCopy}><Text style={styles.adminActionTitle}>Limpar histórico do chat</Text><Text style={styles.adminActionSubtitle}>Voltar para a conversa inicial.</Text></View>
+              <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+            </Pressable>
+            <Pressable style={styles.adminActionRow} onPress={restoreDefaults} testID="admin-restore-defaults-button">
+              <View style={[styles.adminActionIcon, { backgroundColor: `${colors.redGlow}1A` }]}><Feather name="rotate-ccw" size={19} color={colors.redGlow} /></View>
+              <View style={styles.adminActionCopy}><Text style={styles.adminActionTitle}>Restaurar textos padrão</Text><Text style={styles.adminActionSubtitle}>Desfazer as personalizações de textos.</Text></View>
+              <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+            </Pressable>
+          </View>
+
+          <Text style={styles.adminSecurityNote}>As alterações deste painel ficam salvas apenas neste dispositivo.</Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    );
+  };
+
+  const content = activeTab === 'home' ? renderHome() : activeTab === 'ia' ? renderChat() : activeTab === 'love' ? renderLove() : activeTab === 'miranha' ? renderMiranha() : renderAdmin();
 
   return (
     <View style={styles.app}>
@@ -956,6 +1253,7 @@ function BottomNav({ activeTab, onChange, styles, colors, bottomInset }: { activ
     { key: 'ia', icon: 'message-circle', label: 'IA' },
     { key: 'love', icon: 'heart', label: 'Amor' },
     { key: 'miranha', icon: 'aperture', label: 'Miranha' },
+    { key: 'admin', icon: 'settings', label: 'Admin' },
   ];
   return (
     <View style={[styles.bottomNav, { paddingBottom: Math.max(bottomInset, 9) }]}>
@@ -1207,6 +1505,49 @@ function createStyles(colors: ReturnType<typeof useColors>, width: number) {
     contactSubtitle: { color: colors.mutedForeground, fontSize: 11, marginTop: 4 },
     safeNote: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 22 },
     safeNoteText: { color: colors.mutedForeground, fontSize: 10, marginLeft: 6 },
+    adminScreen: { flex: 1, backgroundColor: colors.background },
+    adminLockContent: { flexGrow: 1, justifyContent: 'center' },
+    adminLockCard: { backgroundColor: colors.surfaceStrong, borderRadius: 27, borderWidth: 1, borderColor: colors.border, padding: 23, alignItems: 'center' },
+    adminLockIcon: { width: 58, height: 58, borderRadius: 20, backgroundColor: `${colors.primary}1A`, alignItems: 'center', justifyContent: 'center', marginBottom: 17 },
+    adminEyebrow: { color: colors.primary, fontSize: 10, letterSpacing: 1.8, fontWeight: '800' },
+    adminLockTitle: { color: colors.foreground, fontSize: 28, fontWeight: '700', marginTop: 8 },
+    adminLockSubtitle: { color: colors.mutedForeground, fontSize: 13, lineHeight: 19, textAlign: 'center', marginTop: 9, marginBottom: 21 },
+    adminInput: { width: '100%', minHeight: 48, borderRadius: 15, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.input, color: colors.foreground, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14 },
+    adminTextArea: { minHeight: 105, lineHeight: 20, marginTop: 10 },
+    adminPrimaryButton: { width: '100%', borderRadius: 15, backgroundColor: colors.primary, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 11 },
+    adminPrimaryText: { color: colors.primaryForeground, fontSize: 13, fontWeight: '800' },
+    adminLocalNote: { color: colors.mutedForeground, fontSize: 10, marginTop: 15 },
+    adminHeader: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 22 },
+    adminTitle: { color: colors.foreground, fontSize: 30, lineHeight: 35, fontWeight: '700', letterSpacing: -1 },
+    adminSubtitle: { color: colors.mutedForeground, fontSize: 13, marginTop: 6 },
+    adminLogoutButton: { width: 40, height: 40, borderRadius: 14, backgroundColor: colors.surfaceStrong, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border },
+    adminStats: { flexDirection: 'row', gap: 10, marginBottom: 18 },
+    adminStatCard: { flex: 1, backgroundColor: colors.glass, borderRadius: 18, borderWidth: 1, borderColor: colors.border, padding: 14 },
+    adminStatNumber: { color: colors.primary, fontSize: 25, fontWeight: '800' },
+    adminStatLabel: { color: colors.mutedForeground, fontSize: 11, marginTop: 4 },
+    adminSection: { backgroundColor: colors.surfaceStrong, borderRadius: 22, borderWidth: 1, borderColor: colors.border, padding: 16, marginBottom: 16 },
+    adminSectionEyebrow: { color: colors.pinkSoft, fontSize: 10, letterSpacing: 1.7, fontWeight: '800' },
+    adminSectionTitle: { color: colors.foreground, fontSize: 18, fontWeight: '700', marginTop: 6 },
+    adminSectionHint: { color: colors.mutedForeground, fontSize: 11, lineHeight: 17, marginTop: 5 },
+    adminSecondaryButton: { alignSelf: 'flex-start', borderRadius: 13, borderWidth: 1, borderColor: `${colors.primary}55`, backgroundColor: `${colors.primary}12`, paddingHorizontal: 12, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 10 },
+    adminSecondaryText: { color: colors.pinkSoft, fontSize: 11, fontWeight: '800' },
+    adminDeclarationRow: { flexDirection: 'row', alignItems: 'flex-start', borderTopWidth: 1, borderTopColor: colors.border, paddingVertical: 12, marginTop: 12 },
+    adminDeclarationIndex: { width: 29, height: 29, borderRadius: 10, backgroundColor: `${colors.primary}1A`, alignItems: 'center', justifyContent: 'center', marginRight: 9 },
+    adminDeclarationIndexText: { color: colors.pinkSoft, fontSize: 10, fontWeight: '800' },
+    adminDeclarationText: { flex: 1, color: colors.mutedForeground, fontSize: 11, lineHeight: 17, paddingRight: 8 },
+    adminDeclarationActions: { flexDirection: 'row', gap: 5 },
+    adminIconButton: { width: 30, height: 30, borderRadius: 10, backgroundColor: colors.glass, alignItems: 'center', justifyContent: 'center' },
+    adminEditBox: { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12, marginTop: 2 },
+    adminFieldLabel: { color: colors.foreground, fontSize: 11, fontWeight: '700', marginTop: 12 },
+    adminButtonRow: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+    adminCancelButton: { paddingHorizontal: 10, paddingVertical: 10 },
+    adminCancelText: { color: colors.mutedForeground, fontSize: 11, fontWeight: '700' },
+    adminActionRow: { flexDirection: 'row', alignItems: 'center', borderTopWidth: 1, borderTopColor: colors.border, paddingVertical: 12, marginTop: 5 },
+    adminActionIcon: { width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+    adminActionCopy: { flex: 1 },
+    adminActionTitle: { color: colors.foreground, fontSize: 12, fontWeight: '700' },
+    adminActionSubtitle: { color: colors.mutedForeground, fontSize: 10, marginTop: 3 },
+    adminSecurityNote: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, textAlign: 'center', marginVertical: 4 },
     modalBackdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
     smallModal: { backgroundColor: colors.surface, borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 23, paddingBottom: 31, borderWidth: 1, borderColor: colors.border },
     summonModal: { backgroundColor: colors.surface, borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 23, paddingBottom: 24, borderWidth: 1, borderColor: colors.border },
