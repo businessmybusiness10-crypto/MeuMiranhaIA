@@ -157,7 +157,16 @@ Você não precisa salvar o mundo sozinha. Eu estou aqui, com os braços abertos
 
 Para mim, você é o meu acontecimento mais bonito — em qualquer tempo, em qualquer lugar. 🕷️❤️`;
 
-const angerAlertMessage = 'Eu vou respeitar sua raiva, estarei aqui contigo, mesmo que quietinho, estarei aqui contigo para o que for, isso vai gerar o alerta, e estarei atento!';
+const QUIET_DURATIONS = [15, 30, 60, 120] as const;
+
+function formatQuietDuration(minutes: number) {
+  if (minutes < 60) return `${minutes} minutos`;
+  return minutes === 60 ? '1 hora' : `${minutes / 60} horas`;
+}
+
+function getQuietStatusMessage(minutes: number) {
+  return `✅ Tudo certo!\n\nEla escolheu ficar quietinha por ${formatQuietDuration(minutes)}. Vou respeitar o espaço dela com carinho e estarei atento.`;
+}
 
 const dailyOpeners = [
   'Meu amor, você é mais forte do que o dia difícil de hoje.',
@@ -843,7 +852,7 @@ export default function HomeScreen() {
         onClose={() => setActiveQuickAction(null)}
         onChat={() => { setActiveQuickAction(null); goTo('ia'); }}
         onCall={() => { setActiveQuickAction(null); callMiranha(); }}
-        onWhatsApp={() => { setActiveQuickAction(null); openWhatsApp(angerAlertMessage); }}
+        onQuietDuration={(minutes) => { setActiveQuickAction(null); openWhatsApp(getQuietStatusMessage(minutes)); }}
         declaration={declarations[declarationIndex]}
         dailyPhrase={dailyPhrases[dailyPhraseIndex]}
         dailyIndex={dailyPhraseIndex}
@@ -894,7 +903,7 @@ function BottomNav({ activeTab, onChange, styles, colors, bottomInset }: { activ
   );
 }
 
-function QuickActionModal({ action, onClose, onChat, onCall, onWhatsApp, declaration, dailyPhrase, dailyIndex, onNextDaily, verse, styles, colors }: { action: QuickAction | null; onClose: () => void; onChat: () => void; onCall: () => void; onWhatsApp: () => void; declaration: string; dailyPhrase: string; dailyIndex: number; onNextDaily: () => void; verse: (typeof verses)[number]; styles: ReturnType<typeof createStyles>; colors: ReturnType<typeof useColors> }) {
+function QuickActionModal({ action, onClose, onChat, onCall, onQuietDuration, declaration, dailyPhrase, dailyIndex, onNextDaily, verse, styles, colors }: { action: QuickAction | null; onClose: () => void; onChat: () => void; onCall: () => void; onQuietDuration: (minutes: number) => void; declaration: string; dailyPhrase: string; dailyIndex: number; onNextDaily: () => void; verse: (typeof verses)[number]; styles: ReturnType<typeof createStyles>; colors: ReturnType<typeof useColors> }) {
   if (!action) return null;
   const isLove = action === 'love';
   const isSpecial = action === 'special';
@@ -902,8 +911,8 @@ function QuickActionModal({ action, onClose, onChat, onCall, onWhatsApp, declara
   const isVerse = action === 'verse';
   const isSad = action === 'sad';
   const isAngry = action === 'angry';
-  const content = isLove ? declaration : isSpecial ? specialMessage : isDaily ? `DIA ${String(dailyIndex + 1).padStart(3, '0')} DE 365\n\n${dailyPhrase}` : isVerse ? `“${verse.verse}”\n\n${verse.note}` : isAngry ? angerAlertMessage : action === 'motivation' ? responseBank.motivação[0] : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
-  const title = isLove ? 'Por que eu te amo?' : isSpecial ? 'Uma mensagem especial' : isDaily ? 'Uma palavra para hoje' : isVerse ? `${verse.topic} para hoje` : isAngry ? 'Alerta do amor' : action === 'motivation' ? 'Um empurrinho do seu Miranha' : action === 'tired' ? 'Vem descansar comigo' : 'Eu estou aqui com você';
+  const content = isLove ? declaration : isSpecial ? specialMessage : isDaily ? `DIA ${String(dailyIndex + 1).padStart(3, '0')} DE 365\n\n${dailyPhrase}` : isVerse ? `“${verse.verse}”\n\n${verse.note}` : isAngry ? 'Você pode escolher um tempo para ficar quietinha. Eu vou respeitar seu espaço, sem pressão e sem cobranças. Quando escolher, o WhatsApp abrirá com um aviso simples para eu saber que está tudo certo.' : action === 'motivation' ? responseBank.motivação[0] : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
+  const title = isLove ? 'Por que eu te amo?' : isSpecial ? 'Uma mensagem especial' : isDaily ? 'Uma palavra para hoje' : isVerse ? `${verse.topic} para hoje` : isAngry ? 'Um tempo para você' : action === 'motivation' ? 'Um empurrinho do seu Miranha' : action === 'tired' ? 'Vem descansar comigo' : 'Eu estou aqui com você';
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalBackdrop}>
@@ -917,8 +926,9 @@ function QuickActionModal({ action, onClose, onChat, onCall, onWhatsApp, declara
           <View style={styles.modalActions}>
             {isSad && <Pressable style={styles.modalCallOption} onPress={onCall} testID="sad-modal-call-button"><Ionicons name="call" size={17} color={colors.primaryForeground} /><Text style={styles.modalCallOptionText}>Quer ligar para ele agora?</Text></Pressable>}
             {isDaily && <Pressable style={styles.modalSecondary} onPress={onNextDaily}><Text style={styles.modalSecondaryText}>Outra frase para hoje</Text></Pressable>}
+            {isAngry && <View style={styles.quietPicker}><Text style={styles.quietPickerLabel}>Por quanto tempo você quer ficar quietinha?</Text><View style={styles.quietOptions}>{QUIET_DURATIONS.map((duration) => <Pressable key={duration} style={styles.quietOption} onPress={() => onQuietDuration(duration)}><Text style={styles.quietOptionText}>{formatQuietDuration(duration)}</Text></Pressable>)}</View></View>}
             <Pressable style={styles.modalSecondary} onPress={onClose}><Text style={styles.modalSecondaryText}>Guardar no coração</Text></Pressable>
-            <Pressable style={styles.modalPrimary} onPress={isAngry ? onWhatsApp : onChat}>{isAngry ? <><MaterialCommunityIcons name="whatsapp" size={17} color={colors.primaryForeground} /><Text style={styles.modalPrimaryText}>Avisar pelo WhatsApp</Text></> : <><Text style={styles.modalPrimaryText}>Falar com ele</Text><Feather name="arrow-up-right" size={17} color={colors.primaryForeground} /></>}</Pressable>
+            {!isAngry && <Pressable style={styles.modalPrimary} onPress={onChat}><Text style={styles.modalPrimaryText}>Falar com ele</Text><Feather name="arrow-up-right" size={17} color={colors.primaryForeground} /></Pressable>}
           </View>
         </View>
       </View>
@@ -1120,6 +1130,11 @@ function createStyles(colors: ReturnType<typeof useColors>, width: number) {
     modalBody: { color: colors.mutedForeground, fontSize: 14, lineHeight: 21, marginTop: 15 },
     modalBodyCenter: { color: colors.mutedForeground, fontSize: 14, textAlign: 'center', marginTop: 8, marginBottom: 18 },
     modalActions: { gap: 9, marginTop: 22 },
+    quietPicker: { marginTop: 4 },
+    quietPickerLabel: { color: colors.foreground, fontSize: 12, fontWeight: '700', textAlign: 'center', marginBottom: 10 },
+    quietOptions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 8 },
+    quietOption: { width: '48%', borderRadius: 13, borderWidth: 1, borderColor: `${colors.primary}55`, backgroundColor: `${colors.primary}12`, paddingVertical: 12, alignItems: 'center' },
+    quietOptionText: { color: colors.pinkSoft, fontSize: 12, fontWeight: '800' },
     modalCallOption: { backgroundColor: colors.primary, borderRadius: 15, padding: 13, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
     modalCallOptionText: { color: colors.primaryForeground, fontSize: 12, fontWeight: '800' },
     modalSecondary: { alignItems: 'center', paddingVertical: 12 },
