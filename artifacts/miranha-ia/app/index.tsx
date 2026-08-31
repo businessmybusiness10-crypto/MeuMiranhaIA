@@ -157,7 +157,7 @@ Você não precisa salvar o mundo sozinha. Eu estou aqui, com os braços abertos
 
 Para mim, você é o meu acontecimento mais bonito — em qualquer tempo, em qualquer lugar. 🕷️❤️`;
 
-const angerAlertMessage = '🚨 ALERTA DO AMOR 🚨\n\nMeu amor está com raiva e precisa de você. Por favor, fale com ela com carinho. ❤️🕷️';
+const angerAlertMessage = 'Eu vou respeitar sua raiva, estarei aqui contigo, mesmo que quietinho, estarei aqui contigo para o que for, isso vai gerar o alerta, e estarei atento!';
 
 const dailyOpeners = [
   'Meu amor, você é mais forte do que o dia difícil de hoje.',
@@ -902,7 +902,7 @@ function QuickActionModal({ action, onClose, onChat, onCall, onWhatsApp, declara
   const isVerse = action === 'verse';
   const isSad = action === 'sad';
   const isAngry = action === 'angry';
-  const content = isLove ? declaration : isSpecial ? specialMessage : isDaily ? `DIA ${String(dailyIndex + 1).padStart(3, '0')} DE 365\n\n${dailyPhrase}` : isVerse ? `“${verse.verse}”\n\n${verse.note}` : isAngry ? 'Eu entendo, meu amor. Você pode sentir raiva e ainda assim continuar sendo profundamente amada.\n\nQuando tocar no botão abaixo, o WhatsApp abrirá a conversa com uma mensagem de alerta pronta para enviar. É só confirmar o envio para eu saber que você precisa de mim e poder falar com você com todo o carinho.\n\nO WhatsApp precisa da sua confirmação para enviar a mensagem e gerar a notificação no meu celular.' : action === 'motivation' ? responseBank.motivação[0] : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
+  const content = isLove ? declaration : isSpecial ? specialMessage : isDaily ? `DIA ${String(dailyIndex + 1).padStart(3, '0')} DE 365\n\n${dailyPhrase}` : isVerse ? `“${verse.verse}”\n\n${verse.note}` : isAngry ? angerAlertMessage : action === 'motivation' ? responseBank.motivação[0] : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
   const title = isLove ? 'Por que eu te amo?' : isSpecial ? 'Uma mensagem especial' : isDaily ? 'Uma palavra para hoje' : isVerse ? `${verse.topic} para hoje` : isAngry ? 'Alerta do amor' : action === 'motivation' ? 'Um empurrinho do seu Miranha' : action === 'tired' ? 'Vem descansar comigo' : 'Eu estou aqui com você';
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
