@@ -25,7 +25,7 @@ import {
 import { useColors } from '@/hooks/useColors';
 
 type TabKey = 'home' | 'ia' | 'love' | 'miranha';
-type QuickAction = 'love' | 'tired' | 'sad' | 'motivation' | 'daily' | 'verse' | 'special' | 'chat';
+type QuickAction = 'love' | 'tired' | 'sad' | 'angry' | 'motivation' | 'daily' | 'verse' | 'special' | 'chat';
 type Message = {
   id: string;
   text: string;
@@ -156,6 +156,8 @@ A sua verdadeira força não está em nunca cair, mas em encontrar coragem para 
 Você não precisa salvar o mundo sozinha. Eu estou aqui, com os braços abertos, para correr ao seu encontro e ficar ao seu lado.
 
 Para mim, você é o meu acontecimento mais bonito — em qualquer tempo, em qualquer lugar. 🕷️❤️`;
+
+const angerAlertMessage = '🚨 ALERTA DO AMOR 🚨\n\nMeu amor está com raiva e precisa de você. Por favor, fale com ela com carinho. ❤️🕷️';
 
 const dailyOpeners = [
   'Meu amor, você é mais forte do que o dia difícil de hoje.',
@@ -519,8 +521,8 @@ export default function HomeScreen() {
     }, 850);
   };
 
-  const openWhatsApp = async () => {
-    const url = 'https://wa.me/5521981198840?text=' + encodeURIComponent('🕷️ Chamado Aranha ativado! ❤️\nMeu amor, eu preciso do meu Miranha.');
+  const openWhatsApp = async (message = '🕷️ Chamado Aranha ativado! ❤️\nMeu amor, eu preciso do meu Miranha.') => {
+    const url = 'https://wa.me/5521981198840?text=' + encodeURIComponent(message);
     try {
       await Linking.openURL(url);
       setIsSummonOpen(false);
@@ -632,6 +634,7 @@ export default function HomeScreen() {
         <QuickCard icon="heart" label="Por que eu amo?" accent="pink" onPress={() => openQuickAction('love')} styles={styles} colors={colors} />
         <QuickCard icon="coffee" label="Estou cansada" accent="violet" onPress={() => openQuickAction('tired')} styles={styles} colors={colors} />
         <QuickCard icon="cloud-rain" label="Estou triste" accent="blue" onPress={() => openQuickAction('sad')} styles={styles} colors={colors} />
+        <QuickCard icon="zap" label="Estou com raiva" accent="red" onPress={() => openQuickAction('angry')} styles={styles} colors={colors} />
         <QuickCard icon="sun" label="Preciso de motivação" accent="gold" onPress={() => openQuickAction('motivation')} styles={styles} colors={colors} />
         <QuickCard icon="book-open" label="Palavra para hoje" accent="green" onPress={() => openQuickAction('daily')} styles={styles} colors={colors} />
         <QuickCard icon="feather" label="Uma mensagem especial" accent="pink" onPress={() => openQuickAction('special')} styles={styles} colors={colors} />
@@ -840,6 +843,7 @@ export default function HomeScreen() {
         onClose={() => setActiveQuickAction(null)}
         onChat={() => { setActiveQuickAction(null); goTo('ia'); }}
         onCall={() => { setActiveQuickAction(null); callMiranha(); }}
+        onWhatsApp={() => { setActiveQuickAction(null); openWhatsApp(angerAlertMessage); }}
         declaration={declarations[declarationIndex]}
         dailyPhrase={dailyPhrases[dailyPhraseIndex]}
         dailyIndex={dailyPhraseIndex}
@@ -890,21 +894,22 @@ function BottomNav({ activeTab, onChange, styles, colors, bottomInset }: { activ
   );
 }
 
-function QuickActionModal({ action, onClose, onChat, onCall, declaration, dailyPhrase, dailyIndex, onNextDaily, verse, styles, colors }: { action: QuickAction | null; onClose: () => void; onChat: () => void; onCall: () => void; declaration: string; dailyPhrase: string; dailyIndex: number; onNextDaily: () => void; verse: (typeof verses)[number]; styles: ReturnType<typeof createStyles>; colors: ReturnType<typeof useColors> }) {
+function QuickActionModal({ action, onClose, onChat, onCall, onWhatsApp, declaration, dailyPhrase, dailyIndex, onNextDaily, verse, styles, colors }: { action: QuickAction | null; onClose: () => void; onChat: () => void; onCall: () => void; onWhatsApp: () => void; declaration: string; dailyPhrase: string; dailyIndex: number; onNextDaily: () => void; verse: (typeof verses)[number]; styles: ReturnType<typeof createStyles>; colors: ReturnType<typeof useColors> }) {
   if (!action) return null;
   const isLove = action === 'love';
   const isSpecial = action === 'special';
   const isDaily = action === 'daily';
   const isVerse = action === 'verse';
   const isSad = action === 'sad';
-  const content = isLove ? declaration : isSpecial ? specialMessage : isDaily ? `DIA ${String(dailyIndex + 1).padStart(3, '0')} DE 365\n\n${dailyPhrase}` : isVerse ? `“${verse.verse}”\n\n${verse.note}` : action === 'motivation' ? responseBank.motivação[0] : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
-  const title = isLove ? 'Por que eu te amo?' : isSpecial ? 'Uma mensagem especial' : isDaily ? 'Uma palavra para hoje' : isVerse ? `${verse.topic} para hoje` : action === 'motivation' ? 'Um empurrinho do seu Miranha' : action === 'tired' ? 'Vem descansar comigo' : 'Eu estou aqui com você';
+  const isAngry = action === 'angry';
+  const content = isLove ? declaration : isSpecial ? specialMessage : isDaily ? `DIA ${String(dailyIndex + 1).padStart(3, '0')} DE 365\n\n${dailyPhrase}` : isVerse ? `“${verse.verse}”\n\n${verse.note}` : isAngry ? 'Eu entendo, meu amor. Você pode sentir raiva e ainda assim continuar sendo profundamente amada.\n\nQuando tocar no botão abaixo, o WhatsApp abrirá a conversa com uma mensagem de alerta pronta para enviar. É só confirmar o envio para eu saber que você precisa de mim e poder falar com você com todo o carinho.\n\nO WhatsApp precisa da sua confirmação para enviar a mensagem e gerar a notificação no meu celular.' : action === 'motivation' ? responseBank.motivação[0] : action === 'tired' ? responseBank.cansada[0] : responseBank.triste[0];
+  const title = isLove ? 'Por que eu te amo?' : isSpecial ? 'Uma mensagem especial' : isDaily ? 'Uma palavra para hoje' : isVerse ? `${verse.topic} para hoje` : isAngry ? 'Alerta do amor' : action === 'motivation' ? 'Um empurrinho do seu Miranha' : action === 'tired' ? 'Vem descansar comigo' : 'Eu estou aqui com você';
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalBackdrop}>
         <View style={styles.smallModal}>
           <View style={styles.modalHandle} />
-          <View style={styles.modalIcon}><Ionicons name={isVerse ? 'book-outline' : isDaily ? 'sunny-outline' : 'heart'} size={24} color={colors.pinkSoft} /></View>
+          <View style={styles.modalIcon}><Ionicons name={isVerse ? 'book-outline' : isDaily ? 'sunny-outline' : isAngry ? 'warning-outline' : 'heart'} size={24} color={isAngry ? colors.redGlow : colors.pinkSoft} /></View>
           <Text style={styles.modalTitle}>{title}</Text>
           <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
             <Text style={styles.modalBody}>{content}</Text>
@@ -913,7 +918,7 @@ function QuickActionModal({ action, onClose, onChat, onCall, declaration, dailyP
             {isSad && <Pressable style={styles.modalCallOption} onPress={onCall} testID="sad-modal-call-button"><Ionicons name="call" size={17} color={colors.primaryForeground} /><Text style={styles.modalCallOptionText}>Quer ligar para ele agora?</Text></Pressable>}
             {isDaily && <Pressable style={styles.modalSecondary} onPress={onNextDaily}><Text style={styles.modalSecondaryText}>Outra frase para hoje</Text></Pressable>}
             <Pressable style={styles.modalSecondary} onPress={onClose}><Text style={styles.modalSecondaryText}>Guardar no coração</Text></Pressable>
-            <Pressable style={styles.modalPrimary} onPress={onChat}><Text style={styles.modalPrimaryText}>Falar com ele</Text><Feather name="arrow-up-right" size={17} color={colors.primaryForeground} /></Pressable>
+            <Pressable style={styles.modalPrimary} onPress={isAngry ? onWhatsApp : onChat}>{isAngry ? <><MaterialCommunityIcons name="whatsapp" size={17} color={colors.primaryForeground} /><Text style={styles.modalPrimaryText}>Avisar pelo WhatsApp</Text></> : <><Text style={styles.modalPrimaryText}>Falar com ele</Text><Feather name="arrow-up-right" size={17} color={colors.primaryForeground} /></>}</Pressable>
           </View>
         </View>
       </View>
