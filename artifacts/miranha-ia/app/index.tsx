@@ -162,10 +162,10 @@ Você não precisa salvar o mundo sozinha. Eu estou aqui, com os braços abertos
 
 Para mim, você é o meu acontecimento mais bonito — em qualquer tempo, em qualquer lugar. 🕷️❤️`;
 
-const QUIET_DURATIONS = [15, 30, 60, 120] as const;
+const QUIET_DURATIONS = [1, 5, 15, 20] as const;
 
 function formatQuietDuration(minutes: number) {
-  if (minutes < 60) return `${minutes} minutos`;
+  if (minutes < 60) return minutes === 1 ? '1 minuto' : `${minutes} minutos`;
   return minutes === 60 ? '1 hora' : `${minutes / 60} horas`;
 }
 
