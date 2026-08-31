@@ -38,6 +38,7 @@ const MIRANHA_GREETING = 'miranha aqui! Como posso lhe ajudar?';
 const STORAGE_KEYS = {
   messages: '@miranha/messages',
   story: '@miranha/story',
+  flowers: '@miranha/flowers',
 };
 
 const initialMessages: Message[] = [
@@ -414,6 +415,7 @@ export default function HomeScreen() {
   const [declarationIndex, setDeclarationIndex] = useState(0);
   const [dailyPhraseIndex, setDailyPhraseIndex] = useState(() => (getDayOfYear(new Date()) - 1) % dailyPhrases.length);
   const [verseIndex, setVerseIndex] = useState(0);
+  const [flowerCount, setFlowerCount] = useState(0);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [draft, setDraft] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -428,6 +430,8 @@ export default function HomeScreen() {
   const heartFloat = useRef(new Animated.Value(0)).current;
   const radarRotation = useRef(new Animated.Value(0)).current;
   const radarPulse = useRef(new Animated.Value(0)).current;
+  const flowerBurst = useRef(new Animated.Value(0)).current;
+  const flowersLoaded = useRef(false);
 
   useEffect(() => {
     Animated.loop(
@@ -454,7 +458,7 @@ export default function HomeScreen() {
   }, [heartFloat, pulse, radarPulse, radarRotation]);
 
   useEffect(() => {
-    AsyncStorage.multiGet([STORAGE_KEYS.messages, STORAGE_KEYS.story]).then(([savedMessages, savedStory]) => {
+    AsyncStorage.multiGet([STORAGE_KEYS.messages, STORAGE_KEYS.story, STORAGE_KEYS.flowers]).then(([savedMessages, savedStory, savedFlowers]) => {
       if (savedMessages[1]) {
         try {
           const storedMessages = JSON.parse(savedMessages[1]) as Message[];
@@ -476,6 +480,11 @@ export default function HomeScreen() {
           // Keep editable starter memories if storage is malformed.
         }
       }
+      if (savedFlowers[1]) {
+        const storedFlowerCount = Number.parseInt(savedFlowers[1], 10);
+        if (Number.isFinite(storedFlowerCount) && storedFlowerCount >= 0) setFlowerCount(storedFlowerCount);
+      }
+      flowersLoaded.current = true;
     });
   }, []);
 
@@ -486,6 +495,10 @@ export default function HomeScreen() {
   useEffect(() => {
     AsyncStorage.setItem(STORAGE_KEYS.story, JSON.stringify(story));
   }, [story]);
+
+  useEffect(() => {
+    if (flowersLoaded.current) AsyncStorage.setItem(STORAGE_KEYS.flowers, String(flowerCount));
+  }, [flowerCount]);
 
   const goTo = (tab: TabKey) => {
     Haptics.selectionAsync();
@@ -551,6 +564,19 @@ export default function HomeScreen() {
 
   const updateStory = (id: string, field: 'title' | 'body', value: string) => {
     setStory((current) => current.map((moment) => (moment.id === id ? { ...moment, [field]: value } : moment)));
+  };
+
+  const handleFlowerPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setFlowerCount((current) => current + 1);
+    flowerBurst.stopAnimation();
+    flowerBurst.setValue(0);
+    Animated.timing(flowerBurst, {
+      toValue: 1,
+      duration: 1300,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
   };
 
   const renderHome = () => (
@@ -648,6 +674,49 @@ export default function HomeScreen() {
         <QuickCard icon="book-open" label="Palavra para hoje" accent="green" onPress={() => openQuickAction('daily')} styles={styles} colors={colors} />
         <QuickCard icon="feather" label="Uma mensagem especial" accent="pink" onPress={() => openQuickAction('special')} styles={styles} colors={colors} />
       </View>
+
+      <Pressable
+        style={({ pressed }) => [styles.flowerCard, pressed && styles.pressed]}
+        onPress={handleFlowerPress}
+        testID="flower-button"
+      >
+        <LinearGradient colors={[`${colors.primary}22`, `${colors.violetSoft}14`]} style={styles.flowerCardGradient}>
+          <View style={styles.flowerCopy}>
+            <View style={styles.flowerEyebrowRow}>
+              <Text style={styles.flowerEyebrow}>HORA DA FLOR</Text>
+              <Text style={styles.flowerTinyHeart}>♥</Text>
+            </View>
+            <Text style={styles.flowerTitle}>Flores recebidas</Text>
+            <View style={styles.flowerCountRow}>
+              <Text style={styles.flowerCount}>{flowerCount}</Text>
+              <Text style={styles.flowerCountLabel}>{flowerCount === 1 ? 'flor' : 'flores'}</Text>
+            </View>
+            <Text style={styles.flowerHint}>Toque cada vez que receber uma flor</Text>
+          </View>
+          <View style={styles.flowerButton}>
+            <Text style={styles.flowerButtonIcon}>🌷</Text>
+            <Text style={styles.flowerButtonLabel}>RECEBI</Text>
+          </View>
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.flowerCelebration,
+              {
+                transform: [
+                  { translateY: flowerBurst.interpolate({ inputRange: [0, 0.45, 1], outputRange: [28, -8, -78] }) },
+                  { scale: flowerBurst.interpolate({ inputRange: [0, 0.2, 0.55, 1], outputRange: [0.35, 1.25, 1, 0.8] }) },
+                  { rotate: flowerBurst.interpolate({ inputRange: [0, 0.5, 1], outputRange: ['-14deg', '8deg', '18deg'] }) },
+                ],
+                opacity: flowerBurst.interpolate({ inputRange: [0, 0.15, 0.7, 1], outputRange: [0, 1, 1, 0] }),
+              },
+            ]}
+          >
+            <Text style={styles.flowerCelebrationText}>🌸</Text>
+            <Text style={styles.flowerSparkleOne}>✦</Text>
+            <Text style={styles.flowerSparkleTwo}>✧</Text>
+          </Animated.View>
+        </LinearGradient>
+      </Pressable>
 
       <Pressable style={styles.chatTeaser} onPress={() => openQuickAction('chat')} testID="chat-teaser">
         <LinearGradient colors={[colors.surfaceStrong, colors.surface]} style={styles.chatTeaserGradient}>
@@ -1013,6 +1082,24 @@ function createStyles(colors: ReturnType<typeof useColors>, width: number) {
     quickIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
     quickLabel: { color: colors.cardForeground, fontSize: 13, fontWeight: '600', lineHeight: 17, maxWidth: 125, marginTop: 9 },
     quickArrow: { position: 'absolute', bottom: 13, right: 13 },
+    flowerCard: { borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: `${colors.primary}55`, marginBottom: 18, shadowColor: colors.primary, shadowOpacity: 0.16, shadowRadius: 16, shadowOffset: { width: 0, height: 7 }, elevation: 4 },
+    flowerCardGradient: { minHeight: 148, padding: 18, flexDirection: 'row', alignItems: 'center', position: 'relative', overflow: 'hidden' },
+    flowerCopy: { flex: 1 },
+    flowerEyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    flowerEyebrow: { color: colors.pinkSoft, fontSize: 10, letterSpacing: 1.8, fontWeight: '800' },
+    flowerTinyHeart: { color: colors.primary, fontSize: 13 },
+    flowerTitle: { color: colors.foreground, fontSize: 18, fontWeight: '700', marginTop: 8 },
+    flowerCountRow: { flexDirection: 'row', alignItems: 'baseline', marginTop: 6 },
+    flowerCount: { color: colors.foreground, fontSize: 31, lineHeight: 35, fontWeight: '800' },
+    flowerCountLabel: { color: colors.pinkSoft, fontSize: 13, fontWeight: '700', marginLeft: 6 },
+    flowerHint: { color: colors.mutedForeground, fontSize: 10, marginTop: 5 },
+    flowerButton: { width: 78, height: 78, borderRadius: 26, backgroundColor: `${colors.primary}22`, borderWidth: 1, borderColor: `${colors.pinkSoft}55`, alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '5deg' }] },
+    flowerButtonIcon: { fontSize: 34, lineHeight: 39 },
+    flowerButtonLabel: { color: colors.pinkSoft, fontSize: 9, fontWeight: '800', letterSpacing: 1.1, marginTop: 2 },
+    flowerCelebration: { position: 'absolute', right: 61, top: 44, width: 58, height: 58, alignItems: 'center', justifyContent: 'center', zIndex: 4 },
+    flowerCelebrationText: { fontSize: 41, lineHeight: 48 },
+    flowerSparkleOne: { position: 'absolute', top: -4, right: 1, color: colors.gold, fontSize: 18 },
+    flowerSparkleTwo: { position: 'absolute', bottom: 1, left: 2, color: colors.pinkSoft, fontSize: 15 },
     chatTeaser: { borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, marginBottom: 10 },
     chatTeaserGradient: { padding: 15, flexDirection: 'row', alignItems: 'center' },
     chatTeaserIcon: { width: 42, height: 42, borderRadius: 15, backgroundColor: colors.glassBright, justifyContent: 'center', alignItems: 'center' },
