@@ -1,5 +1,5 @@
 import { useEffect, useState, type ComponentType } from "react";
-import { Activity, ArrowUpRight, CheckCircle2, Clock3, Github, RefreshCw, Server, ShieldCheck, Smartphone } from "lucide-react";
+import { Activity, ArrowUpRight, CheckCircle2, Clock3, Github, QrCode, RefreshCw, Server, ShieldCheck, Smartphone } from "lucide-react";
 
 import { modules as discoveredModules } from "./.generated/mockup-components";
 
@@ -212,6 +212,38 @@ function AdminDashboard() {
   );
 }
 
+function DistributionPage() {
+  const expoUrl = import.meta.env.VITE_EXPO_URL ?? "";
+  const qrUrl = expoUrl
+    ? `https://quickchart.io/qr?size=320&text=${encodeURIComponent(expoUrl)}`
+    : "";
+  const adminUrl = `${getBasePath()}/#admin`;
+
+  return (
+    <main className="distribution-shell">
+      <section className="distribution-card">
+        <div className="brand-mark light"><span>MI</span><div><strong>Miranha IA</strong><small>um cantinho só de vocês</small></div></div>
+        <p className="eyebrow">ACESSO PELO CELULAR</p>
+        <h1>Abra o Miranha no Expo Go.</h1>
+        <p className="muted">Instale o Expo Go no iPhone, escaneie o código e entre no app. O QR Code abaixo é atualizado pelo link Expo configurado no deploy.</p>
+        <div className="distribution-grid">
+          <div className="qr-panel">
+            {qrUrl ? <img src={qrUrl} alt="QR Code para abrir o Miranha IA no Expo Go" /> : <div className="qr-empty"><QrCode size={58} /><span>QR Code aguardando o link Expo</span></div>}
+            <strong>{expoUrl ? "Escaneie com o Expo Go" : "Configure VITE_EXPO_URL"}</strong>
+            <small>{expoUrl ? "iPhone e Android na mesma rede ou usando túnel Expo." : "O deploy precisa receber a URL exp:// ou exp+... do Expo."}</small>
+          </div>
+          <div className="install-panel">
+            <span className="step-badge">1</span><h2>Instale o Expo Go</h2><p>O Expo Go é o aplicativo oficial para abrir este projeto no iPhone e no Android.</p>
+            <div className="store-buttons"><a href="https://apps.apple.com/app/expo-go/id982107779" target="_blank" rel="noreferrer">App Store <ArrowUpRight size={15} /></a><a href="https://play.google.com/store/apps/details?id=host.exp.exponent" target="_blank" rel="noreferrer">Google Play <ArrowUpRight size={15} /></a></div>
+            <span className="step-badge">2</span><h2>Escaneie o QR Code</h2><p>Abra o Expo Go, toque em escanear e aponte a câmera para este código.</p>
+          </div>
+        </div>
+        <footer className="distribution-footer"><span>Versão de acesso Expo Go</span><a href={adminUrl}>Administração do sistema <ShieldCheck size={15} /></a></footer>
+      </section>
+    </main>
+  );
+}
+
 function App() {
   const previewPath = getPreviewPath();
 
@@ -224,7 +256,7 @@ function App() {
     );
   }
 
-  return <AdminDashboard />;
+  return window.location.hash === "#admin" ? <AdminDashboard /> : <DistributionPage />;
 }
 
 export default App;
