@@ -17,14 +17,28 @@ if (process.env.REPL_ID) {
   env.EXPO_PUBLIC_REPL_ID = process.env.REPL_ID;
 }
 
-const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
-const child = spawn(command, ['exec', 'expo', 'start', `--${connection}`, '--port', port], {
-  cwd: __dirname + '/..',
-  env,
-  stdio: 'inherit',
-});
+const isWindows = process.platform === 'win32';
+const command = isWindows ? process.env.ComSpec || 'cmd.exe' : 'pnpm';
 
-child.on('exit', (code, signal) => {
-  if (signal) process.kill(process.pid, signal);
-  process.exit(code ?? 1);
-});
+function startExpo(mode) {
+  const args = isWindows
+    ? ['/d', '/s', '/c', `corepack pnpm exec expo start --${mode} --port ${port}`]
+    : ['exec', 'expo', 'start', `--${mode}`, '--port', port];
+  const child = spawn(command, args, {
+    cwd: __dirname + '/..',
+    env,
+    stdio: 'inherit',
+  });
+
+  child.on('exit', (code, signal) => {
+    if (signal) process.kill(process.pid, signal);
+    if (mode === 'tunnel' && code !== 0) {
+      console.warn('\nExpo tunnel failed (Ngrok may need configuration). Retrying with LAN...');
+      startExpo('lan');
+      return;
+    }
+    process.exit(code ?? 1);
+  });
+}
+
+startExpo(connection);
