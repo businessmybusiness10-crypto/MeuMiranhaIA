@@ -2,11 +2,21 @@
 
 ## Replit Deploy
 
-O caminho recomendado para este projeto é o deploy do Replit. O arquivo `.replit` já está configurado para executar `build:online` no build e `start:online` no servidor. O build gera bundles e manifests do Expo Go; o servidor de produção fica ativo na URL pública do Replit.
+O caminho recomendado para este projeto é o deploy do Replit. O arquivo `.replit` já está configurado para executar `build:online` no build e `start:online` no servidor. O build gera bundles e manifests do Expo Go; o servidor de produção fica ativo na URL pública do Replit. A mesma URL também encaminha `/api/*` para a API de login, vínculo Spider e monitoramento.
 
 No Replit, clique em **Deploy** e escolha **Autoscale Deployment**. Depois do primeiro deploy, use a URL pública exibida pelo Replit para abrir a página e escanear o QR Code. O desktop pode ser desligado depois que o deploy terminar.
 
 O endereço precisa continuar o mesmo para o QR não mudar. Se o Replit fornecer um domínio personalizado, use esse domínio no deploy.
+
+Para testar localmente o servidor unificado depois de gerar os bundles:
+
+```powershell
+corepack pnpm run build:online
+$env:PORT="3000"
+corepack pnpm run start:online
+```
+
+O serviço público ficará em `https://seu-dominio-replit/`, e a API em `https://seu-dominio-replit/api/healthz`.
 
 O GitHub Pages hospeda apenas a página estática. Ele não executa o Metro/Expo Go. Um QR apontando para `localhost`, LAN ou túnel Ngrok deixa de funcionar quando o computador é desligado. Para o app completo ficar online, use o Replit Deploy configurado acima ou EAS Update.
 

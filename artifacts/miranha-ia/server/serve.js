@@ -132,6 +132,22 @@ function serveStaticFile(urlPath, res) {
   res.end(content);
 }
 
+function proxyApi(req, res) {
+  const apiPort = Number(process.env.API_PORT || 5001);
+  const proxy = http.request(
+    { hostname: '127.0.0.1', port: apiPort, path: req.url, method: req.method, headers: req.headers },
+    (upstream) => {
+      res.writeHead(upstream.statusCode || 502, upstream.headers);
+      upstream.pipe(res);
+    },
+  );
+  proxy.on('error', () => {
+    if (!res.headersSent) res.writeHead(502, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ error: 'API indisponível' }));
+  });
+  req.pipe(proxy);
+}
+
 const landingPageTemplate = fs.readFileSync(TEMPLATE_PATH, 'utf-8');
 const appName = getAppName();
 const downloadLinks = getDownloadLinks();
@@ -142,6 +158,10 @@ const server = http.createServer((req, res) => {
 
   if (basePath && pathname.startsWith(basePath)) {
     pathname = pathname.slice(basePath.length) || '/';
+  }
+
+  if (pathname === '/api' || pathname.startsWith('/api/')) {
+    return proxyApi(req, res);
   }
 
   if (pathname === '/' || pathname === '/manifest') {
