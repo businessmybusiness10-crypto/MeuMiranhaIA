@@ -2,7 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -54,9 +53,13 @@ const runtimeConstants = Constants as typeof Constants & {
   executionEnvironment?: string;
 };
 const isExpoGo = runtimeConstants.appOwnership === 'expo' || runtimeConstants.executionEnvironment === 'storeClient';
+type NotificationsApi = typeof import('expo-notifications');
+const notifications: NotificationsApi | null = isExpoGo
+  ? null
+  : require('expo-notifications') as NotificationsApi;
 
-if (!isExpoGo) {
-  Notifications.setNotificationHandler({
+if (notifications) {
+  notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowBanner: true,
       shouldShowList: true,
@@ -566,11 +569,11 @@ function AppContent() {
   useEffect(() => {
     let mounted = true;
     async function registerNotifications() {
-      if (isExpoGo) return;
-      const permission = await Notifications.requestPermissionsAsync();
+      if (!notifications) return;
+      const permission = await notifications.requestPermissionsAsync();
       if (!mounted || permission.status !== 'granted' || !spiderPairCode) return;
       const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-      const token = (await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined)).data;
+      const token = (await notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined)).data;
       const apiUrl = process.env.EXPO_PUBLIC_API_URL;
       if (!apiUrl) return;
       await fetch(`${apiUrl.replace(/\/$/, '')}/api/spider/pairs/${spiderPairCode}/devices`, {
