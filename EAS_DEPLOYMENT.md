@@ -39,3 +39,13 @@ Para uso real em segundo plano:
 - Notificações push remotas confiáveis exigem um build EAS para iOS/Android e credenciais de push configuradas.
 - O servidor deve definir `EXPO_PUBLIC_API_URL` no app e ter `DATABASE_URL` configurada para substituir o armazenamento temporário em memória por PostgreSQL.
 - Login Google exige um OAuth Client ID/web redirect URI próprios; não coloque client secrets dentro do app.
+
+## Google Login
+
+1. No Google Cloud Console, crie um projeto e configure a tela de consentimento OAuth.
+2. Crie Client IDs OAuth para Web, iOS e Android usando os identificadores `com.miranhaia.app` e o SHA-1 da assinatura Android.
+3. Configure as variáveis do arquivo `.env.example` no ambiente do Replit/EAS.
+4. Use o mesmo Client ID Web em `GOOGLE_CLIENT_ID` no servidor.
+5. Defina `EXPO_PUBLIC_REQUIRE_GOOGLE_LOGIN=true` somente depois de preencher os IDs.
+
+O endpoint `/api/auth/google` valida a assinatura, a audiência e o e-mail verificado do token antes de aceitar o usuário.

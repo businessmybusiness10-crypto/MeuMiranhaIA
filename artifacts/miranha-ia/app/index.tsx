@@ -25,6 +25,7 @@ import {
   View,
 } from 'react-native';
 import { useColors } from '@/hooks/useColors';
+import { GoogleLoginGate } from '@/components/GoogleLoginGate';
 
 type TabKey = 'home' | 'ia' | 'love' | 'miranha' | 'admin';
 type QuickAction = 'love' | 'tired' | 'sad' | 'angry' | 'motivation' | 'daily' | 'verse' | 'special' | 'chat';
@@ -437,7 +438,7 @@ function getDayOfYear(date: Date) {
   return Math.floor((current - start) / 86400000);
 }
 
-export default function HomeScreen() {
+function AppContent() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -1344,6 +1345,14 @@ export default function HomeScreen() {
       />
       <SummonModal visible={isSummonOpen} onClose={() => setIsSummonOpen(false)} onMessage={() => openWhatsApp()} onCall={callMiranha} styles={styles} colors={colors} />
     </View>
+  );
+}
+
+export default function HomeScreen() {
+  return (
+    <GoogleLoginGate>
+      <AppContent />
+    </GoogleLoginGate>
   );
 }
 
