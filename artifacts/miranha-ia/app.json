@@ -33,7 +33,14 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "color": "#e85d8f",
+          "defaultChannel": "spider-calls"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

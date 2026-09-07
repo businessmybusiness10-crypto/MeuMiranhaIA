@@ -28,3 +28,14 @@ Para publicação automática pelo GitHub Actions:
 4. Execute o comando EAS Update no workflow de deploy.
 
 O conteúdo salvo no app ainda usa AsyncStorage local. EAS mantém o código online, mas não sincroniza mensagens ou configurações entre dispositivos; essa sincronização exige uma API autenticada e banco persistente.
+
+## Chamado Spider e segundo plano
+
+O app agora possui o fluxo inicial de vínculo por código em **Administrador > Chamado Spider**, registro de aparelhos e envio de notificações Expo com título `CHAMADO SPIDER`, som e prioridade alta.
+
+Para uso real em segundo plano:
+
+- Expo Go serve para testar a interface e o fluxo local.
+- Notificações push remotas confiáveis exigem um build EAS para iOS/Android e credenciais de push configuradas.
+- O servidor deve definir `EXPO_PUBLIC_API_URL` no app e ter `DATABASE_URL` configurada para substituir o armazenamento temporário em memória por PostgreSQL.
+- Login Google exige um OAuth Client ID/web redirect URI próprios; não coloque client secrets dentro do app.

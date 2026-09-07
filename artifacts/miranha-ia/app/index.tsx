@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -43,7 +45,17 @@ const STORAGE_KEYS = {
   flowers: '@miranha/flowers',
   declarations: '@miranha/declarations',
   miranhaPromise: '@miranha/miranha-promise',
+  spiderPairCode: '@miranha/spider-pair-code',
 };
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 const initialMessages: Message[] = [
   {
@@ -442,6 +454,8 @@ export default function HomeScreen() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [draft, setDraft] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [spiderPairCode, setSpiderPairCode] = useState('');
+  const [spiderCodeDraft, setSpiderCodeDraft] = useState('');
   const [showCallPrompt, setShowCallPrompt] = useState(false);
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
@@ -486,7 +500,7 @@ export default function HomeScreen() {
   }, [heartFloat, pulse, radarPulse, radarRotation]);
 
   useEffect(() => {
-    AsyncStorage.multiGet([STORAGE_KEYS.messages, STORAGE_KEYS.story, STORAGE_KEYS.flowers, STORAGE_KEYS.declarations, STORAGE_KEYS.miranhaPromise]).then(([savedMessages, savedStory, savedFlowers, savedDeclarations, savedPromise]) => {
+    AsyncStorage.multiGet([STORAGE_KEYS.messages, STORAGE_KEYS.story, STORAGE_KEYS.flowers, STORAGE_KEYS.declarations, STORAGE_KEYS.miranhaPromise, STORAGE_KEYS.spiderPairCode]).then(([savedMessages, savedStory, savedFlowers, savedDeclarations, savedPromise, savedPairCode]) => {
       if (savedMessages[1]) {
         try {
           const storedMessages = JSON.parse(savedMessages[1]) as Message[];
@@ -527,9 +541,37 @@ export default function HomeScreen() {
         setMiranhaPromise(savedPromise[1]);
         setAdminPromiseDraft(savedPromise[1]);
       }
+      if (savedPairCode[1]) {
+        setSpiderPairCode(savedPairCode[1]);
+        setSpiderCodeDraft(savedPairCode[1]);
+      }
       storageLoaded.current = true;
     });
   }, []);
+
+  useEffect(() => {
+    if (!storageLoaded.current || !spiderPairCode) return;
+    void AsyncStorage.setItem(STORAGE_KEYS.spiderPairCode, spiderPairCode);
+  }, [spiderPairCode]);
+
+  useEffect(() => {
+    let mounted = true;
+    async function registerNotifications() {
+      const permission = await Notifications.requestPermissionsAsync();
+      if (!mounted || permission.status !== 'granted' || !spiderPairCode) return;
+      const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+      const token = (await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined)).data;
+      const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+      if (!apiUrl) return;
+      await fetch(`${apiUrl.replace(/\/$/, '')}/api/spider/pairs/${spiderPairCode}/devices`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ token, label: 'Miranha IA' }),
+      });
+    }
+    void registerNotifications().catch(() => undefined);
+    return () => { mounted = false; };
+  }, [spiderPairCode]);
 
   useEffect(() => {
     AsyncStorage.setItem(STORAGE_KEYS.messages, JSON.stringify(messages));
@@ -596,6 +638,14 @@ export default function HomeScreen() {
 
   const openWhatsApp = async (message = '🕷️ Chamado Aranha ativado! ❤️\nMeu amor, eu preciso do meu Miranha.') => {
     const safeMessage = typeof message === 'string' ? message : '🕷️ Chamado Aranha ativado! ❤️\nMeu amor, eu preciso do meu Miranha.';
+    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+    if (apiUrl && spiderPairCode) {
+      void fetch(`${apiUrl.replace(/\/$/, '')}/api/spider/pairs/${spiderPairCode}/calls`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ message: safeMessage }),
+      }).catch(() => undefined);
+    }
     const url = 'https://wa.me/5521981198840?text=' + encodeURIComponent(safeMessage);
     try {
       await Linking.openURL(url);
@@ -640,6 +690,31 @@ export default function HomeScreen() {
       setAdminPassword('');
       Alert.alert('Senha incorreta', 'Confira a senha e tente novamente.');
     }
+  };
+
+  const createSpiderPair = async () => {
+    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+    if (!apiUrl) return Alert.alert('Servidor não configurado', 'Defina EXPO_PUBLIC_API_URL para criar o vínculo online.');
+    try {
+      const response = await fetch(`${apiUrl.replace(/\/$/, '')}/api/spider/pairs`, { method: 'POST' });
+      if (!response.ok) throw new Error('pair creation failed');
+      const data = (await response.json()) as { pairCode: string };
+      setSpiderPairCode(data.pairCode);
+      setSpiderCodeDraft(data.pairCode);
+      Alert.alert('Código Spider criado', `Compartilhe este código somente com ela:\n\n${data.pairCode}`);
+    } catch {
+      Alert.alert('Não foi possível criar', 'O servidor Spider está indisponível agora.');
+    }
+  };
+
+  const saveSpiderPair = () => {
+    const cleanCode = spiderCodeDraft.trim().toUpperCase();
+    if (!/^[A-Z0-9]{6}$/.test(cleanCode)) {
+      Alert.alert('Código inválido', 'O código Spider deve ter 6 caracteres.');
+      return;
+    }
+    setSpiderPairCode(cleanCode);
+    Alert.alert('Vínculo salvo', 'Este aparelho agora está ligado ao casal Spider.');
   };
 
   const handleAdminLogout = () => {
@@ -1128,6 +1203,27 @@ export default function HomeScreen() {
           <View style={styles.adminStats}>
             <View style={styles.adminStatCard}><Text style={styles.adminStatNumber}>{flowerCount}</Text><Text style={styles.adminStatLabel}>flores recebidas</Text></View>
             <View style={styles.adminStatCard}><Text style={styles.adminStatNumber}>{declarations.length}</Text><Text style={styles.adminStatLabel}>declarações</Text></View>
+          </View>
+
+          <View style={styles.adminSection}>
+            <Text style={styles.adminSectionEyebrow}>VÍNCULO PRIVADO</Text>
+            <Text style={styles.adminSectionTitle}>Chamado Spider</Text>
+            <Text style={styles.adminSectionHint}>Use o mesmo código nos dois aparelhos. Ele será usado para entregar alertas com som e vibração.</Text>
+            <TextInput
+              value={spiderCodeDraft}
+              onChangeText={(value) => setSpiderCodeDraft(value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6))}
+              autoCapitalize="characters"
+              maxLength={6}
+              style={styles.adminInput}
+              placeholder="CÓDIGO DE 6 CARACTERES"
+              placeholderTextColor={colors.mutedForeground}
+              testID="spider-pair-code-input"
+            />
+            <View style={styles.adminButtonRow}>
+              <Pressable style={styles.adminSecondaryButton} onPress={createSpiderPair} testID="spider-create-pair-button"><Feather name="key" size={16} color={colors.pinkSoft} /><Text style={styles.adminSecondaryText}>Criar código</Text></Pressable>
+              <Pressable style={styles.adminSecondaryButton} onPress={saveSpiderPair} testID="spider-save-pair-button"><Feather name="link" size={16} color={colors.pinkSoft} /><Text style={styles.adminSecondaryText}>Vincular</Text></Pressable>
+            </View>
+            {spiderPairCode ? <Text style={styles.adminLocalNote}>Vínculo ativo: {spiderPairCode}</Text> : null}
           </View>
 
           <View style={styles.adminSection}>
