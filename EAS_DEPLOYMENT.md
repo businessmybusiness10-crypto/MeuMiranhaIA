@@ -1,6 +1,14 @@
 # Acesso online sem manter o desktop ligado
 
-O GitHub Pages hospeda a página e o QR Code, mas não executa o Metro/Expo Go. Um QR apontando para `localhost`, LAN ou túnel Ngrok deixa de funcionar quando o computador é desligado.
+## Replit Deploy
+
+O caminho recomendado para este projeto é o deploy do Replit. O arquivo `.replit` já está configurado para executar `build:online` no build e `start:online` no servidor. O build gera bundles e manifests do Expo Go; o servidor de produção fica ativo na URL pública do Replit.
+
+No Replit, clique em **Deploy** e escolha **Autoscale Deployment**. Depois do primeiro deploy, use a URL pública exibida pelo Replit para abrir a página e escanear o QR Code. O desktop pode ser desligado depois que o deploy terminar.
+
+O endereço precisa continuar o mesmo para o QR não mudar. Se o Replit fornecer um domínio personalizado, use esse domínio no deploy.
+
+O GitHub Pages hospeda apenas a página estática. Ele não executa o Metro/Expo Go. Um QR apontando para `localhost`, LAN ou túnel Ngrok deixa de funcionar quando o computador é desligado. Para o app completo ficar online, use o Replit Deploy configurado acima ou EAS Update.
 
 Para manter o app disponível, publique uma atualização no EAS Update:
 
