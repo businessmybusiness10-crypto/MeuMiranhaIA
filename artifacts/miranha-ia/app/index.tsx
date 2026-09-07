@@ -49,14 +49,22 @@ const STORAGE_KEYS = {
   spiderPairCode: '@miranha/spider-pair-code',
 };
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+const runtimeConstants = Constants as typeof Constants & {
+  appOwnership?: string;
+  executionEnvironment?: string;
+};
+const isExpoGo = runtimeConstants.appOwnership === 'expo' || runtimeConstants.executionEnvironment === 'storeClient';
+
+if (!isExpoGo) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+    }),
+  });
+}
 
 const initialMessages: Message[] = [
   {
@@ -558,6 +566,7 @@ function AppContent() {
   useEffect(() => {
     let mounted = true;
     async function registerNotifications() {
+      if (isExpoGo) return;
       const permission = await Notifications.requestPermissionsAsync();
       if (!mounted || permission.status !== 'granted' || !spiderPairCode) return;
       const projectId = Constants.expoConfig?.extra?.eas?.projectId;
