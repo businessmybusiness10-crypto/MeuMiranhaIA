@@ -14,9 +14,14 @@
       "backgroundColor": "#0d0714"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": true,
+      "bundleIdentifier": "com.miranhaia.app",
+      "buildNumber": "1"
     },
-    "android": {},
+    "android": {
+      "package": "com.miranhaia.app",
+      "versionCode": 1
+    },
     "web": {
       "favicon": "./assets/images/icon.png"
     },

@@ -47,6 +47,15 @@ function getAppName() {
   }
 }
 
+function getDownloadLinks() {
+  return {
+    ios: process.env.APP_STORE_URL || 'https://apps.apple.com/app/id982107779',
+    android:
+      process.env.GOOGLE_PLAY_URL ||
+      'https://play.google.com/store/apps/details?id=host.exp.exponent',
+  };
+}
+
 function escapeHtml(value) {
   return value
     .replaceAll('&', '&amp;')
@@ -125,6 +134,7 @@ function serveStaticFile(urlPath, res) {
 
 const landingPageTemplate = fs.readFileSync(TEMPLATE_PATH, 'utf-8');
 const appName = getAppName();
+const downloadLinks = getDownloadLinks();
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host}`);
@@ -141,7 +151,14 @@ const server = http.createServer((req, res) => {
     }
 
     if (pathname === '/') {
-      return serveLandingPage(req, res, landingPageTemplate, appName);
+      return serveLandingPage(
+        req,
+        res,
+        landingPageTemplate
+          .replace(/IOS_DOWNLOAD_URL_PLACEHOLDER/g, escapeHtml(downloadLinks.ios))
+          .replace(/ANDROID_DOWNLOAD_URL_PLACEHOLDER/g, escapeHtml(downloadLinks.android)),
+        appName,
+      );
     }
   }
 

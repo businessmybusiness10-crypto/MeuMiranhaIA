@@ -24,6 +24,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /system/status:
+    get:
+      operationId: systemStatus
+      tags: [health]
+      summary: System status
+      description: Returns operational information for the desktop administration panel
+      responses:
+        "200":
+          description: Current system status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SystemStatus"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +46,31 @@ components:
           type: string
       required:
         - status
+    SystemStatus:
+      type: object
+      properties:
+        status:
+          type: string
+        service:
+          type: string
+        environment:
+          type: string
+        version:
+          type: string
+        startedAt:
+          type: string
+          format: date-time
+        uptimeSeconds:
+          type: integer
+        checkedAt:
+          type: string
+          format: date-time
+      required:
+        - status
+        - service
+        - environment
+        - version
+        - startedAt
+        - uptimeSeconds
+        - checkedAt
 

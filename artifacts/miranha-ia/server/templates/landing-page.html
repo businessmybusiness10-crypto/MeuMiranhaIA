@@ -35,6 +35,33 @@
         margin-top: 8px;
         margin-bottom: 32px;
       }
+      .download-tabs {
+        display: flex;
+        gap: 8px;
+        margin: 0 auto 20px;
+        padding: 4px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background: #f7f7f7;
+      }
+      .download-tab {
+        flex: 1;
+        border: 0;
+        border-radius: 7px;
+        padding: 10px 12px;
+        background: transparent;
+        color: #777;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .download-tab.active {
+        background: #fff;
+        color: #222;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .12);
+      }
+      .platform-note { display: none; margin: -8px 0 20px; color: #666; font-size: 13px; }
+      .platform-note.active { display: block; }
       .loading {
         display: none;
         margin: 60px 0;
@@ -338,7 +365,14 @@
 
       <div class="content" id="content">
         <h1>APP_NAME_PLACEHOLDER</h1>
-        <p class="subtitle">Preview this app on your phone</p>
+        <p class="subtitle">Um cantinho só de vocês, disponível no iPhone e Android.</p>
+
+        <div class="download-tabs" role="tablist" aria-label="Escolha sua plataforma">
+          <button class="download-tab active" data-platform="ios" role="tab" aria-selected="true">iPhone / iPad</button>
+          <button class="download-tab" data-platform="android" role="tab" aria-selected="false">Android</button>
+        </div>
+        <p class="platform-note active" data-note="ios">Para instalar no iPhone, abra a App Store ou use o QR Code abaixo.</p>
+        <p class="platform-note" data-note="android">Para instalar no Android, abra o Google Play ou use o QR Code abaixo.</p>
 
         <div class="steps-container">
           <div class="step">
@@ -352,7 +386,7 @@
             <div class="store-buttons" id="store-buttons">
               <a
                 id="app-store-btn"
-                href="https://apps.apple.com/app/id982107779"
+                href="IOS_DOWNLOAD_URL_PLACEHOLDER"
                 class="store-button"
                 target="_blank"
               >
@@ -365,7 +399,7 @@
               </a>
               <a
                 id="play-store-btn"
-                href="https://play.google.com/store/apps/details?id=host.exp.exponent"
+                href="ANDROID_DOWNLOAD_URL_PLACEHOLDER"
                 class="store-button"
                 target="_blank"
               >
@@ -411,6 +445,20 @@
           (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
         const deepLink = EXPS_URL_JSON_PLACEHOLDER;
+
+        document.querySelectorAll('.download-tab').forEach((tab) => {
+          tab.addEventListener('click', () => {
+            const platform = tab.dataset.platform;
+            document.querySelectorAll('.download-tab').forEach((item) => {
+              const active = item === tab;
+              item.classList.toggle('active', active);
+              item.setAttribute('aria-selected', String(active));
+            });
+            document.querySelectorAll('.platform-note').forEach((note) => {
+              note.classList.toggle('active', note.dataset.note === platform);
+            });
+          });
+        });
 
         // Adjust store buttons based on platform
         const appStoreBtn = document.getElementById("app-store-btn");
