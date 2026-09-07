@@ -402,6 +402,23 @@ function nowLabel() {
   return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
+function normalizeMessageText(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    for (const key of ['text', 'message', 'content']) {
+      if (typeof record[key] === 'string') return record[key];
+    }
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return 'Mensagem recebida';
+    }
+  }
+  return String(value);
+}
+
 function getDayOfYear(date: Date) {
   const start = Date.UTC(date.getFullYear(), 0, 0);
   const current = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
@@ -474,11 +491,12 @@ export default function HomeScreen() {
         try {
           const storedMessages = JSON.parse(savedMessages[1]) as Message[];
           setMessages(
-            storedMessages.map((message) =>
-              message.from === 'miranha' && !message.text.startsWith(MIRANHA_GREETING)
-                ? { ...message, text: `${MIRANHA_GREETING}\n\n${message.text}` }
-                : message,
-            ),
+            storedMessages.map((message) => {
+              const text = normalizeMessageText(message.text);
+              return message.from === 'miranha' && !text.startsWith(MIRANHA_GREETING)
+                ? { ...message, text: `${MIRANHA_GREETING}\n\n${text}` }
+                : { ...message, text };
+            }),
           );
         } catch {
           // Keep the welcoming local conversation if storage is malformed.
@@ -577,7 +595,8 @@ export default function HomeScreen() {
   };
 
   const openWhatsApp = async (message = '🕷️ Chamado Aranha ativado! ❤️\nMeu amor, eu preciso do meu Miranha.') => {
-    const url = 'https://wa.me/5521981198840?text=' + encodeURIComponent(message);
+    const safeMessage = typeof message === 'string' ? message : '🕷️ Chamado Aranha ativado! ❤️\nMeu amor, eu preciso do meu Miranha.';
+    const url = 'https://wa.me/5521981198840?text=' + encodeURIComponent(safeMessage);
     try {
       await Linking.openURL(url);
       setIsSummonOpen(false);
@@ -908,7 +927,7 @@ export default function HomeScreen() {
           <View style={[styles.messageRow, item.from === 'her' ? styles.messageRowHer : styles.messageRowMiranha]}>
             {item.from === 'miranha' && <View style={styles.messageMiniAvatar}><Text style={styles.messageMiniAvatarText}>M</Text></View>}
             <View style={[styles.messageBubble, item.from === 'her' ? styles.messageBubbleHer : styles.messageBubbleMiranha]}>
-              <Text style={styles.messageText}>{item.text}</Text>
+              <Text style={styles.messageText}>{normalizeMessageText(item.text)}</Text>
               <Text style={[styles.messageTime, item.from === 'her' && styles.messageTimeHer]}>{item.time}</Text>
             </View>
           </View>
@@ -1227,7 +1246,7 @@ export default function HomeScreen() {
         styles={styles}
         colors={colors}
       />
-      <SummonModal visible={isSummonOpen} onClose={() => setIsSummonOpen(false)} onMessage={openWhatsApp} onCall={callMiranha} styles={styles} colors={colors} />
+      <SummonModal visible={isSummonOpen} onClose={() => setIsSummonOpen(false)} onMessage={() => openWhatsApp()} onCall={callMiranha} styles={styles} colors={colors} />
     </View>
   );
 }
